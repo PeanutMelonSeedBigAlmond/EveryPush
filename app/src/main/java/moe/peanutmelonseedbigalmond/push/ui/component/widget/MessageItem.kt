@@ -104,7 +104,6 @@ private fun TextMessageContent(text: String) {
 private fun ImageMessageContent(content: String) {
     val model = ImageRequest.Builder(LocalContext.current)
         .data(content)
-        .size(Size.ORIGINAL)
         .crossfade(true)
         .build()
     SubcomposeAsyncImage(

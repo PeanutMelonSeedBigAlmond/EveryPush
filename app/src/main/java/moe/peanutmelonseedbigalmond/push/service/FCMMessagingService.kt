@@ -62,7 +62,6 @@ class FCMMessagingService : FirebaseMessagingService(),
     private fun sendImageNotification(title: String, imageUrl: String) {
         val imageRequest = ImageRequest.Builder(this)
             .data(imageUrl)
-            .size(Size.ORIGINAL)
             .build()
         launch {
             val notificationId =
