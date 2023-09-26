@@ -41,4 +41,6 @@
     <string name="default_notification_title">通知</string>
     <string name="image_notification_brief">收到一张图片</string>
     <string name="markdown_norification_brief">收到一条富文本消息</string>
+    <string name="login_with_microsoft">通过 Microsoft 账号登录</string>
+    <string name="login_account_tips">注意：不论使用何种登录方式，只要它们的电子邮件地址相同，系统都会将其视为同一账户</string>
 </resources>

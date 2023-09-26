@@ -33,6 +33,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.repository.AppConfigurationRepository
+import moe.peanutmelonseedbigalmond.push.ui.component.LocalActivity
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalActivityCoroutineScope
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalMarkwon
@@ -86,8 +87,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispa
             }
         }
 
-
-
         markwon = Markwon.builder(this)
             .usePlugin(StrikethroughPlugin.create())
             .usePlugin(TablePlugin.create(this))
@@ -103,7 +102,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispa
             CompositionLocalProvider(
                 LocalGlobalViewModel provides viewModel,
                 LocalActivityCoroutineScope provides this,
-                LocalMarkwon provides markwon
+                LocalMarkwon provides markwon,
+                LocalActivity provides this
             ) {
                 MyApp()
             }

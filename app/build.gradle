@@ -5,6 +5,13 @@ plugins {
     id 'kotlin-kapt'
 }
 
+def keyPropertiesFile = file("signing.properties")
+def keyProperties = keyPropertiesFile.exists() ? new Properties() : null
+if (keyProperties != null) {
+    keyProperties.load(new FileInputStream(keyPropertiesFile))
+}
+
+
 android {
     compileSdk 34
 
@@ -19,20 +26,14 @@ android {
     }
 
     signingConfigs {
-        def signingConfig=file("signing.properties")
-        if (signingConfig.exists()){
-            def inputStream=FileInputStream(signingConfig)
-            def signingProperties=Properties()
-            signingProperties.load(inpueStream)
-            inputStream.close()
+        if (keyProperties != null) {
             debug {
-                storeFile file(signingProperties.getProperty("debug.keystoreFile"))
-                storePassword signingProperties.getProperty("debug.keystoreFilePassword")
-                keyAlias signingProperties.getProperty("debug.signingAlias")
-                keyPassword signingProperties.getProperty("debug.signingPassword")
+                storeFile file(keyProperties["debug.keystoreFile"])
+                storePassword keyProperties["debug.keystoreFilePassword"]
+                keyAlias keyProperties["debug.signingAlias"]
+                keyPassword keyProperties["debug.signingPassword"]
             }
         }
-
     }
 
     buildFeatures {
@@ -109,15 +110,15 @@ dependencies {
     //endregion
 
     //region Markdown 依赖
-    implementation"io.noties.markwon:core:$markwon_version"
-    implementation"io.noties.markwon:ext-strikethrough:$markwon_version"
-    implementation"io.noties.markwon:ext-tables:$markwon_version"
-    implementation"io.noties.markwon:ext-tasklist:$markwon_version"
-    implementation"io.noties.markwon:html:$markwon_version"
-    implementation"io.noties.markwon:image:$markwon_version"
-    implementation"io.noties.markwon:image-coil:$markwon_version"
-    implementation"io.noties.markwon:linkify:$markwon_version"
-    implementation"io.noties.markwon:simple-ext:$markwon_version"
+    implementation "io.noties.markwon:core:$markwon_version"
+    implementation "io.noties.markwon:ext-strikethrough:$markwon_version"
+    implementation "io.noties.markwon:ext-tables:$markwon_version"
+    implementation "io.noties.markwon:ext-tasklist:$markwon_version"
+    implementation "io.noties.markwon:html:$markwon_version"
+    implementation "io.noties.markwon:image:$markwon_version"
+    implementation "io.noties.markwon:image-coil:$markwon_version"
+    implementation "io.noties.markwon:linkify:$markwon_version"
+    implementation "io.noties.markwon:simple-ext:$markwon_version"
     //endregion
 
     implementation 'com.github.DylanCaiCoding.Longan:longan:1.1.1'

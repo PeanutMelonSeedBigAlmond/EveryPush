@@ -41,4 +41,6 @@
     <string name="default_notification_title">Notification</string>
     <string name="image_notification_brief">A image received</string>
     <string name="markdown_norification_brief">A rich-text message received</string>
+    <string name="login_with_microsoft">Login with Microsoft</string>
+    <string name="login_account_tips">Note that whatever login method you selected, system will deemed to same account if their has same email address</string>
 </resources>
