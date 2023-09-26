@@ -33,7 +33,7 @@ steps:
    
 - script: |
     sudo chmod +x gradlew
-    sudo chmod root:root $(googleservice.secureFilePath)
+    sudo chown root:root $(googleservice.secureFilePath)
     sudo chmod a+r $(googleservice.secureFilePath)
     cp $(googleservice.secureFilePath) app/
   displayName: Setup filebase configuration
@@ -58,7 +58,7 @@ steps:
     apksignerKeyPassword: $(keyPassword)
 
 - script: |
-    sudo cp app/release/app-release-unsigned.apk $(Build.ArtifactStagingDirectory)/app-release.apk
+    sudo cp app/build/outputs/apk/release/app-release-unsigned.apk $(Build.ArtifactStagingDirectory)/app-release.apk
   displayName: Pre-upload
 
 - task: PublishBuildArtifacts@1
