@@ -18,10 +18,28 @@ pool:
 
 steps:
 - task: DownloadSecureFile@1
+  name: keystore
+  displayName: Download keystore file
   inputs:
     retryCount: 3
     secureFile: keystore.jks
+
+- task: DownloadSecureFile@1
+  name: googleservice
+  displayName: Download Firebase configuration
+  inputs: 
+   retryCount: 3
+   secureFile: google-services.json
+   
+- script: |
+    sudo chmod +x gradlew
+    sudo chmod root:root $(googleservice.secureFilePath)
+    sudo chmod a+r $(googleservice.secureFilePath)
+    cp $(googleservice.secureFilePath) app/
+  displayName: Setup filebase configuration
+
 - task: Gradle@3
+  displayName: Build apk
   inputs:
     gradleWrapperFile: 'gradlew'
     tasks: 'assembleRelease'
@@ -29,16 +47,22 @@ steps:
     javaHomeOption: 'JDKVersion'
     gradleOptions: '-Xmx3072m'
     sonarQubeRunAnalysis: false
+
 - task: AndroidSigning@3
+  displayName: Signing apk
   inputs:
     apkFiles: 'app/build/outputs/apk/release/app-release-unsigned.apk'
     apksignerKeystoreFile: 'keystore.jks'
     apksignerKeystorePassword: $(keystorePassword)
     apksignerKeystoreAlias: 'release'
     apksignerKeyPassword: $(keyPassword)
+
 - script: |
     sudo cp app/release/app-release-unsigned.apk $(Build.ArtifactStagingDirectory)/app-release.apk
+  displayName: Pre-upload
+
 - task: PublishBuildArtifacts@1
+  displayName: Upload artifact
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'EveryPush'
