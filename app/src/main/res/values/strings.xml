@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name" translatable="false">EveryPush</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="allow_app_notification_premission">Please allow this app push notifications</string>
+    <string name="allow_necessary_premissions">Please allow the necessary premissions</string>
+    <string name="field_is_required">The field is required</string>
+    <string name="url_must_starts_with_http_or_https">Url must starts with \"http://\" or \"https://\"</string>
+    <string name="configuring_server_title">Server</string>
+    <string name="test_server">Test</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="login_title">Login</string>
+    <string name="error_login_cancelled">Login cancelled</string>
+    <string name="error_unknown_error_occurred">Unknown error occurred</string>
+    <string name="error_get_token_failed">Failed to get token</string>
+    <string name="error_not_login">Not login</string>
+    <string name="title_devices">Devices</string>
+    <string name="title_keys">Keys</string>
+    <string name="title_messages">Messages</string>
+    <string name="title_settings">Settings</string>
+    <string name="get_firebase_token_failed">Failed to get Firebase token</string>
+    <string name="tip_no_device">No devices</string>
+    <string name="rename">Rename</string>
+    <string name="create_or_get_keys_first">Please create or get keys at first</string>
+    <string name="tip_no_message">No messages</string>
+    <string name="message_will_be_sent_as_text">Message will be sent as text</string>
+    <string name="message_content">Content</string>
+    <string name="title_account_settings">Account</string>
+    <string name="account">Account</string>
+    <string name="logout">Logout</string>
+    <string name="title_cache_settings">Cache</string>
+    <string name="clear_images_cache">Clear images cache</string>
+    <string name="tip_copied">Copied</string>
+    <string name="tip_tap_add_to_create_key">Tap \"+\" to create a key</string>
+    <string name="this_device">(This device)</string>
+    <string name="delete">Delete</string>
+    <string name="reset">Reset</string>
+    <string name="copy">Copy</string>
+    <string name="failed_to_load_image">Failed to load image</string>
+    <string name="image_is_empty">Image is empty</string>
+    <string name="default_notification_title">Notification</string>
+    <string name="image_notification_brief">A image received</string>
+    <string name="markdown_norification_brief">A rich-text message received</string>
+</resources>
