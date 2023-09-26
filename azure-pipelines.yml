@@ -1,0 +1,70 @@
+# Gradle
+# Build your Java project and run tests with Gradle using a Gradle wrapper script.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+  branches:
+    include:
+      - '*'
+  paths:
+    exclude:
+      - readme.md
+      - LICENSE
+      - .gitignore
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: DownloadSecureFile@1
+  name: keystore
+  displayName: Download keystore file
+  inputs:
+    retryCount: 3
+    secureFile: keystore.jks
+
+- task: DownloadSecureFile@1
+  name: googleservice
+  displayName: Download Firebase configuration
+  inputs: 
+   retryCount: 3
+   secureFile: google-services.json
+   
+- script: |
+    sudo chmod +x gradlew
+    sudo chown root:root $(googleservice.secureFilePath)
+    sudo chmod a+r $(googleservice.secureFilePath)
+    cp $(googleservice.secureFilePath) app/
+  displayName: Setup Firebase configuration
+
+- task: Gradle@3
+  displayName: Build apk
+  inputs:
+    gradleWrapperFile: 'gradlew'
+    tasks: 'assembleRelease'
+    publishJUnitResults: false
+    javaHomeOption: 'JDKVersion'
+    gradleOptions: '-Xmx3072m'
+    sonarQubeRunAnalysis: false
+
+- task: AndroidSigning@3
+  displayName: Signing apk
+  inputs:
+    apkFiles: 'app/build/outputs/apk/release/app-release-unsigned.apk'
+    apksignerKeystoreFile: 'keystore.jks'
+    apksignerKeystorePassword: $(keystorePassword)
+    apksignerKeystoreAlias: 'release'
+    apksignerKeyPassword: $(keyPassword)
+
+- script: |
+    sudo cp app/build/outputs/apk/release/app-release-unsigned.apk $(Build.ArtifactStagingDirectory)/app-release.apk
+  displayName: Pre-upload
+
+- task: PublishBuildArtifacts@1
+  displayName: Upload artifact
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'EveryPush'
+    publishLocation: 'Container'
+    
