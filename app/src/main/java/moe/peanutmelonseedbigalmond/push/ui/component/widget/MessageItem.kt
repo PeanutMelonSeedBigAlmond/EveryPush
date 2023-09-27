@@ -38,17 +38,16 @@ import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
-import coil.size.Size
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalMarkwon
 import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
 import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.util.Date
 
 @Composable
 fun MessageItem(messageData: MessageData, onDeleteAction: (MessageData) -> Unit) {
-    val dateFormatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.SHORT) // yyyy年MM月dd日 HH:mm
+    val dateFormatter =
+        DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT) // yyyy年MM月dd日 HH:mm
     val datetimeString = dateFormatter.format(Date(messageData.sendTime))
     Column(
         modifier = Modifier

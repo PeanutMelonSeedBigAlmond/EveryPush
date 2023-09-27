@@ -1,6 +1,5 @@
 package moe.peanutmelonseedbigalmond.push.ui.component.page.home
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues

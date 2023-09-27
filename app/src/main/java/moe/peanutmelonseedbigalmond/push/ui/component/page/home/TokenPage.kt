@@ -12,12 +12,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,9 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import moe.peanutmelonseedbigalmond.push.R
-import moe.peanutmelonseedbigalmond.push.network.Client
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
 import moe.peanutmelonseedbigalmond.push.ui.component.page.LocalHomePageSnackBarHostState
 import moe.peanutmelonseedbigalmond.push.ui.component.page.LocalHomePageViewModel
@@ -47,7 +45,7 @@ import moe.peanutmelonseedbigalmond.push.ui.data.TokenData
 @Composable
 fun TokenPage() {
     //region 变量
-    val globalViewModel= LocalGlobalViewModel.current
+    val globalViewModel = LocalGlobalViewModel.current
     val homePageViewModel = LocalHomePageViewModel.current
     val snackBarHostState = LocalHomePageSnackBarHostState.current
     val context = LocalContext.current
@@ -72,7 +70,7 @@ fun TokenPage() {
     /**
      * 列出推送密钥
      */
-    suspend fun listKeys(){
+    suspend fun listKeys() {
         isRefreshing = true
         try {
             val refreshKeyResponse = globalViewModel.client.listToken()
@@ -138,7 +136,7 @@ fun TokenPage() {
         contentAlignment = Alignment.Center
     ) {
         LazyColumn(
-            modifier=Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -235,7 +233,7 @@ private fun RenamingTokenDialog(
     onComplete: (TokenData, String) -> Unit,
     onCancel: () -> Unit
 ) {
-    val context= LocalContext.current
+    val context = LocalContext.current
     var newName by remember { mutableStateOf(tokenData.name) }
     var inputError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }

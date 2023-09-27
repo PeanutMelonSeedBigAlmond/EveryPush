@@ -30,7 +30,7 @@ class Client(baseUrl: String) {
         getResponseBody(service.login(fcmToken))
     }
 
-    suspend fun getUserInfo()= withContext(Dispatchers.IO){
+    suspend fun getUserInfo() = withContext(Dispatchers.IO) {
         checkTokenExpired()
         return@withContext getResponseBody(service.getUserInfo(token))
     }
@@ -93,9 +93,9 @@ class Client(baseUrl: String) {
         return@withContext getResponseBody(service.pushTextMessage(token, message))
     }
 
-    suspend fun deleteMessage(messageId:Long)= withContext(Dispatchers.IO){
+    suspend fun deleteMessage(messageId: Long) = withContext(Dispatchers.IO) {
         checkTokenExpired()
-        return@withContext getResponseBody(service.deleteMessage(token,messageId))
+        return@withContext getResponseBody(service.deleteMessage(token, messageId))
     }
 
     private fun checkTokenExpired() {

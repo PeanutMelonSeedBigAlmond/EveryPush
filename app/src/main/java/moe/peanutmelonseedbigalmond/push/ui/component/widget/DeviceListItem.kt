@@ -1,8 +1,6 @@
 package moe.peanutmelonseedbigalmond.push.ui.component.widget
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,11 +20,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import moe.peanutmelonseedbigalmond.push.R
-import moe.peanutmelonseedbigalmond.push.network.response.FetchDeviceResponse
 import moe.peanutmelonseedbigalmond.push.ui.data.DeviceData
 
 @Composable
@@ -61,7 +57,7 @@ fun DeviceListItem(
         }
         DropdownMenu(expanded = isMenuVisible, onDismissRequest = { isMenuVisible = false }) {
             DropdownMenuItem(
-                text = { Text(text = stringResource(id =R.string.delete)) },
+                text = { Text(text = stringResource(id = R.string.delete)) },
                 onClick = {
                     onDeleteActionSelected(device)
                     isMenuVisible = false

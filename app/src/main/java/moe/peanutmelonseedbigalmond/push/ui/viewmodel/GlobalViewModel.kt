@@ -26,10 +26,10 @@ class GlobalViewModel : ViewModel() {
         client.tokenExpiredAt = newValue
     }
 
-    fun clearUserConfig(){
-        url="http://localhost"
-        token=""
-        tokenExpiredAt=0L
+    fun clearUserConfig() {
+        url = "http://localhost"
+        token = ""
+        tokenExpiredAt = 0L
         saveUserConfig()
     }
 

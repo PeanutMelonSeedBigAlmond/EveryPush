@@ -33,7 +33,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.OAuthCredential
 import com.google.firebase.auth.OAuthProvider
@@ -76,7 +75,7 @@ fun GoogleLoginPage() {
      */
     fun onFirebaseLoginSuccess(token: String) {
         coroutineScope.launch {
-            loadingDialogShow=true
+            loadingDialogShow = true
             try {
                 val loginResponse = globalViewModel.client.login(token)
                 globalViewModel.token = loginResponse.token
@@ -96,14 +95,14 @@ fun GoogleLoginPage() {
         }
     }
 
-    fun commonWaitForAuthResult(auth: Task<AuthResult>){
+    fun commonWaitForAuthResult(auth: Task<AuthResult>) {
         auth.addOnCompleteListener {
             if (it.isSuccessful) {
                 val currentUser = globalViewModel.auth.currentUser
                 if (currentUser != null) {
                     currentUser.getIdToken(true)
                         .addOnCompleteListener { task ->
-                            loadingDialogShow=false
+                            loadingDialogShow = false
                             if (task.isSuccessful) {
                                 val idToken = task.result.token!!
                                 onFirebaseLoginSuccess(idToken)
@@ -117,10 +116,10 @@ fun GoogleLoginPage() {
                     val exception = it.exception
                     exception?.printStackTrace()
                     showMessageWithSnackBar(R.string.error_not_login)
-                    loadingDialogShow=false
+                    loadingDialogShow = false
                 }
             } else {
-                loadingDialogShow=false
+                loadingDialogShow = false
                 val exception = it.exception
                 exception?.printStackTrace()
                 showMessageWithSnackBar(R.string.error_login_cancelled)
@@ -143,13 +142,13 @@ fun GoogleLoginPage() {
      * @param result ActivityResult
      */
     fun onGoogleLoginResult(result: ActivityResult) {
-        loadingDialogShow=true
+        loadingDialogShow = true
         if (result.resultCode == AppCompatActivity.RESULT_OK) {
             try {
                 val credential =
                     globalViewModel.oneTapClient.getSignInCredentialFromIntent(result.data)
                 val token = credential.googleIdToken
-                loadingDialogShow=false
+                loadingDialogShow = false
                 if (token != null) {
                     getFirebaseUserToken(token)
                 } else {
@@ -161,10 +160,10 @@ fun GoogleLoginPage() {
             }
         } else if (result.resultCode == AppCompatActivity.RESULT_CANCELED) {
             showMessageWithSnackBar(R.string.error_login_cancelled)
-            loadingDialogShow=false
+            loadingDialogShow = false
         } else {
             showMessageWithSnackBar(R.string.error_unknown_error_occurred)
-            loadingDialogShow=false
+            loadingDialogShow = false
         }
     }
 
@@ -183,7 +182,7 @@ fun GoogleLoginPage() {
                 val intentSendRequest =
                     IntentSenderRequest.Builder(it.pendingIntent.intentSender).build()
                 googleLoginActivityLauncher.launch(intentSendRequest)
-                loadingDialogShow=false
+                loadingDialogShow = false
             }
             .addOnFailureListener {
                 it.printStackTrace()
@@ -198,7 +197,7 @@ fun GoogleLoginPage() {
      * 第三方登录公用回调
      * @param credential OAuthCredential
      */
-    fun onThirdPartyLoginSuccess(credential: OAuthCredential){
+    fun onThirdPartyLoginSuccess(credential: OAuthCredential) {
         commonWaitForAuthResult(globalViewModel.auth.signInWithCredential(credential))
     }
 
@@ -213,10 +212,10 @@ fun GoogleLoginPage() {
             globalViewModel.auth.startActivityForSignInWithProvider(activity, provider.build())
                 .addOnSuccessListener {
                     val credential = it.credential as OAuthCredential?
-                    if (credential==null){
+                    if (credential == null) {
                         showMessageWithSnackBar(R.string.error_not_login)
-                        loadingDialogShow=false
-                    }else{
+                        loadingDialogShow = false
+                    } else {
                         commonWaitForAuthResult(globalViewModel.auth.signInWithCredential(credential))
                     }
                 }.addOnFailureListener {
@@ -227,10 +226,10 @@ fun GoogleLoginPage() {
         } else {
             pendingResultTask.addOnSuccessListener {
                 val credential = it.credential as OAuthCredential?
-                if (credential==null){
+                if (credential == null) {
                     showMessageWithSnackBar(R.string.error_not_login)
-                    loadingDialogShow=false
-                }else{
+                    loadingDialogShow = false
+                } else {
                     commonWaitForAuthResult(globalViewModel.auth.signInWithCredential(credential))
                 }
             }.addOnFailureListener {
@@ -265,7 +264,10 @@ fun GoogleLoginPage() {
             Button(onClick = ::loginWithMicrosoft) {
                 Text(text = stringResource(id = R.string.login_with_microsoft))
             }
-            Text(text = stringResource(id = R.string.login_account_tips), modifier = Modifier.padding(8.dp))
+            Text(
+                text = stringResource(id = R.string.login_account_tips),
+                modifier = Modifier.padding(8.dp)
+            )
         }
     }
 }

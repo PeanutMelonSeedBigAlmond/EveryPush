@@ -5,5 +5,5 @@ data class FetchMessageResponse(
     val text: String,
     val title: String? = null,
     val type: String = "",
-    val pushTime:Long=0L,
+    val pushTime: Long = 0L,
 )

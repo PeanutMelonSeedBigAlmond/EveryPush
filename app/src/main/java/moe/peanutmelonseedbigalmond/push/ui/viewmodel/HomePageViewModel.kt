@@ -10,7 +10,7 @@ import moe.peanutmelonseedbigalmond.push.ui.data.TokenData
 class HomePageViewModel : ViewModel() {
     val deviceList = mutableStateOf(emptyList<DeviceData>())
     val tokenList = mutableStateOf(emptyList<TokenData>())
-    val messageList= mutableStateOf(emptyList<MessageData>())
+    val messageList = mutableStateOf(emptyList<MessageData>())
     lateinit var devicePageOnFabClick: () -> Unit
     lateinit var keyPageOnFabClick: () -> Unit
     lateinit var messagePageOnFabClick: () -> Unit

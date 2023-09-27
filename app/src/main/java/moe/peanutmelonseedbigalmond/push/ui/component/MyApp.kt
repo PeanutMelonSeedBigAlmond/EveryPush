@@ -16,8 +16,8 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.statusBarsPadding
 import moe.peanutmelonseedbigalmond.push.ui.component.page.ConfigureServerPage
-import moe.peanutmelonseedbigalmond.push.ui.component.page.HomePage
 import moe.peanutmelonseedbigalmond.push.ui.component.page.GoogleLoginPage
+import moe.peanutmelonseedbigalmond.push.ui.component.page.HomePage
 import moe.peanutmelonseedbigalmond.push.ui.component.page.Page
 import moe.peanutmelonseedbigalmond.push.ui.theme.MyAppTheme
 

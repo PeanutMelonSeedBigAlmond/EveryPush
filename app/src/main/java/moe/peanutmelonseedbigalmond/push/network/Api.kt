@@ -28,7 +28,7 @@ interface Api {
 
     @POST("/user/info")
     @FormUrlEncoded
-    suspend fun getUserInfo(@Field("token") token:String):NetworkResponse<ResponseWrapper<UserInfoResponse>, ErrorResponse>
+    suspend fun getUserInfo(@Field("token") token: String): NetworkResponse<ResponseWrapper<UserInfoResponse>, ErrorResponse>
 
     @POST("/device/list")
     @FormUrlEncoded
@@ -101,14 +101,14 @@ interface Api {
     @POST("/message/push")
     @FormUrlEncoded
     suspend fun pushTextMessage(
-        @Field("pushToken") token:String,
-        @Field("text") text:String
-    ):NetworkResponse<ResponseWrapper<PushMessageResponse>, ErrorResponse>
+        @Field("pushToken") token: String,
+        @Field("text") text: String
+    ): NetworkResponse<ResponseWrapper<PushMessageResponse>, ErrorResponse>
 
     @POST("/message/remove")
     @FormUrlEncoded
     suspend fun deleteMessage(
         @Field("token") token: String,
-        @Field("id") id:Long
-    ):NetworkResponse<ResponseWrapper<Unit>, ErrorResponse>
+        @Field("id") id: Long
+    ): NetworkResponse<ResponseWrapper<Unit>, ErrorResponse>
 }

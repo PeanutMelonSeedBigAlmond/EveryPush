@@ -50,17 +50,33 @@ fun HomePage() {
     //region 变量
     val viewModel = viewModel(modelClass = HomePageViewModel::class.java)
     val navController = rememberNavController()
-    val context= LocalContext.current
+    val context = LocalContext.current
     val snackBarState = remember { SnackbarHostState() }
     var showFloatingAction by remember { mutableStateOf(true) }
     var currentIndex by remember { mutableIntStateOf(0) }
     var appBarTitle by remember { mutableStateOf("") }
     val navigationItems = remember(Unit) {
         listOf(
-            Triple(Icons.Rounded.Devices, context.getString(R.string.title_devices), Page.MainPage.Device.route),
-            Triple(Icons.Rounded.Key, context.getString(R.string.title_keys), Page.MainPage.Keys.route),
-            Triple(Icons.Rounded.Message, context.getString(R.string.title_messages), Page.MainPage.Message.route),
-            Triple(Icons.Rounded.Settings, context.getString(R.string.title_settings), Page.MainPage.Setting.route)
+            Triple(
+                Icons.Rounded.Devices,
+                context.getString(R.string.title_devices),
+                Page.MainPage.Device.route
+            ),
+            Triple(
+                Icons.Rounded.Key,
+                context.getString(R.string.title_keys),
+                Page.MainPage.Keys.route
+            ),
+            Triple(
+                Icons.Rounded.Message,
+                context.getString(R.string.title_messages),
+                Page.MainPage.Message.route
+            ),
+            Triple(
+                Icons.Rounded.Settings,
+                context.getString(R.string.title_settings),
+                Page.MainPage.Setting.route
+            )
         )
     }
     //endregion
@@ -72,7 +88,11 @@ fun HomePage() {
         Scaffold(
             topBar = { TopAppBar(title = { Text(text = appBarTitle) }) },
             floatingActionButton = {
-               AnimatedVisibility(visible = showFloatingAction, enter = scaleIn(), exit = scaleOut()){
+                AnimatedVisibility(
+                    visible = showFloatingAction,
+                    enter = scaleIn(),
+                    exit = scaleOut()
+                ) {
                     FloatingActionButton(onClick = {
                         viewModel.onFabClick(navigationItems[currentIndex].third)
                     }) {
@@ -108,22 +128,22 @@ fun HomePage() {
                     navController = navController,
                 ) {
                     composable(Page.MainPage.Device.route) {
-                        showFloatingAction=true
+                        showFloatingAction = true
                         appBarTitle = stringResource(id = R.string.title_devices)
                         DevicesPage()
                     }
                     composable(Page.MainPage.Keys.route) {
-                        showFloatingAction=true
+                        showFloatingAction = true
                         appBarTitle = stringResource(id = R.string.title_keys)
                         TokenPage()
                     }
                     composable(Page.MainPage.Message.route) {
-                        showFloatingAction=true
+                        showFloatingAction = true
                         appBarTitle = stringResource(id = R.string.title_messages)
                         MessagesPage()
                     }
                     composable(Page.MainPage.Setting.route) {
-                        showFloatingAction=false
+                        showFloatingAction = false
                         appBarTitle = stringResource(id = R.string.title_settings)
                         SettingsPage()
                     }
@@ -134,4 +154,5 @@ fun HomePage() {
 }
 
 val LocalHomePageViewModel = compositionLocalOf<HomePageViewModel> { error("Not initialized") }
-val LocalHomePageSnackBarHostState = compositionLocalOf<SnackbarHostState> { error("Not initialized") }
+val LocalHomePageSnackBarHostState =
+    compositionLocalOf<SnackbarHostState> { error("Not initialized") }

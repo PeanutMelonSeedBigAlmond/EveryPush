@@ -11,13 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.TextButton
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,7 +33,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
 import moe.peanutmelonseedbigalmond.push.ui.component.page.LocalHomePageSnackBarHostState
@@ -48,7 +47,7 @@ fun MessagesPage() {
     val globalViewModel = LocalGlobalViewModel.current
     val homePageViewModel = LocalHomePageViewModel.current
     val snackBarHostState = LocalHomePageSnackBarHostState.current
-    val context= LocalContext.current
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val tokenList by remember(homePageViewModel) { homePageViewModel.tokenList }
     var messages by remember(homePageViewModel) { homePageViewModel.messageList }
@@ -105,9 +104,9 @@ fun MessagesPage() {
         isRefreshing = true
         try {
             val pushMessageResponse = globalViewModel.client.pushTextMessage(
-                    token,
-                    message
-                )
+                token,
+                message
+            )
         } catch (_: CancellationException) {
         } catch (e: Exception) {
             e.printStackTrace()
@@ -200,7 +199,7 @@ fun PushMessageDialog(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
-    val context= LocalContext.current
+    val context = LocalContext.current
     var messageContent by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 

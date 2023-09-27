@@ -1,6 +1,5 @@
 package moe.peanutmelonseedbigalmond.push.ui.component.widget
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,8 +25,6 @@ import androidx.compose.ui.unit.dp
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.data.TokenData
 import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.Date
 
 @Composable
@@ -38,7 +35,7 @@ fun KeyItem(
     onCopyAction: (TokenData) -> Unit,
     onItemClick: (TokenData) -> Unit
 ) {
-    val dateFormatter=DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.SHORT)
+    val dateFormatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
     OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -74,7 +71,7 @@ fun KeyItem(
                         contentDescription = "Date icon"
                     )
                     Text(
-                        text =  dateFormatter.format(Date(key.createTime)),
+                        text = dateFormatter.format(Date(key.createTime)),
                         modifier = Modifier.padding(4.dp)
                     )
                 }
