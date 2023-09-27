@@ -1,5 +1,7 @@
 package moe.peanutmelonseedbigalmond.push.ui.component.page.home
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,9 +33,11 @@ import kotlinx.coroutines.withContext
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.network.Client
 import moe.peanutmelonseedbigalmond.push.repository.AppConfigurationRepository
+import moe.peanutmelonseedbigalmond.push.ui.component.LocalActivity
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalActivityCoroutineScope
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalNavHostController
+import moe.peanutmelonseedbigalmond.push.ui.component.page.LocalHomePageSnackBarHostState
 import moe.peanutmelonseedbigalmond.push.ui.component.page.LocalHomePageViewModel
 import moe.peanutmelonseedbigalmond.push.ui.component.page.Page
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.MenuPreferences
@@ -104,6 +108,13 @@ fun SettingsPage() {
             }
         )
         CleanImageCachePref()
+
+        PreferenceGroup(
+            modifier = Modifier.fillMaxWidth(),
+            title = stringResource(id = R.string.title_other_settings)
+        ) {
+            FCMDiagnosticsPerf()
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -170,6 +181,33 @@ fun CleanImageCachePref() {
 
     LaunchedEffect(Unit) {
         calculateCacheSize()
+    }
+}
+
+@Composable
+fun FCMDiagnosticsPerf() {
+    val activity = LocalActivity.current
+    val context = LocalContext.current
+    val snackBarHostState = LocalHomePageSnackBarHostState.current
+    val coroutineScope = rememberCoroutineScope()
+    TextPreferences(
+        modifier = Modifier.fillMaxWidth(),
+        title = { Text(text = stringResource(id = R.string.fcm_diagnostics_perf)) },
+        summary = {
+            Text(
+                text = stringResource(id = R.string.fcm_diagnostics_pref_summary)
+            )
+        }) {
+        val intent = Intent()
+        intent.setClassName("com.google.android.gms", "com.google.android.gms.gcm.GcmDiagnostics")
+        try {
+            activity.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
+            coroutineScope.launch {
+                snackBarHostState.showSnackbar(context.getString(R.string.error_cannot_start_activity))
+            }
+        }
     }
 }
 

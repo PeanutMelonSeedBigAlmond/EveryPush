@@ -46,4 +46,8 @@
     <string name="notification_channel_image">图片</string>
     <string name="notification_channel_text">文本</string>
     <string name="notification_channel_group_received_messages">收到的消息</string>
+    <string name="fcm_diagnostics_perf">FCM 诊断</string>
+    <string name="fcm_diagnostics_pref_summary">打开 FCM 诊断页面</string>
+    <string name="error_cannot_start_activity">无法打开指定页面</string>
+    <string name="title_other_settings">其他</string>
 </resources>

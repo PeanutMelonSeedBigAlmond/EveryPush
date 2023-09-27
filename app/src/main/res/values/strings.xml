@@ -47,4 +47,8 @@
     <string name="notification_channel_markdown" translatable="false">Markdown</string>
     <string name="notification_channel_text">Text</string>
     <string name="notification_channel_group_received_messages">Received messages</string>
+    <string name="fcm_diagnostics_perf">FCM diagnostics</string>
+    <string name="fcm_diagnostics_pref_summary">Open FCM diagnostics page</string>
+    <string name="error_cannot_start_activity">Cannot start specified activity</string>
+    <string name="title_other_settings">Others</string>
 </resources>
