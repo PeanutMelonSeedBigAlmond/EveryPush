@@ -43,4 +43,8 @@
     <string name="markdown_norification_brief">A rich-text message received</string>
     <string name="login_with_microsoft">Login with Microsoft</string>
     <string name="login_account_tips">Note that whatever login method you selected, system will deemed to same account if their has same email address</string>
+    <string name="notification_channel_image">Image</string>
+    <string name="notification_channel_markdown" translatable="false">Markdown</string>
+    <string name="notification_channel_text">Text</string>
+    <string name="notification_channel_group_received_messages">Received messages</string>
 </resources>
