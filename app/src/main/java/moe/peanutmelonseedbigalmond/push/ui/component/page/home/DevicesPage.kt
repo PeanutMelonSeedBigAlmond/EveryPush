@@ -209,7 +209,7 @@ private fun RenameDeviceDialog(
     onConfirm: (DeviceData, String) -> Unit,
 ) {
     val context = LocalContext.current
-    var newDeviceName by remember { mutableStateOf("") }
+    var newDeviceName by remember { mutableStateOf(device.name) }
     var inputError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     MyAlertDialog(
