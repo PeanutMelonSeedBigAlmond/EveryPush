@@ -75,6 +75,7 @@ fun SettingsPage() {
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        homePageViewModel.appBarTitle = stringResource(id = R.string.title_settings)
         UserInfoWidget(
             username = username,
             onLogoutAction = {

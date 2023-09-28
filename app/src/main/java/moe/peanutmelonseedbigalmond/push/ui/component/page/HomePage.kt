@@ -25,17 +25,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import moe.peanutmelonseedbigalmond.push.R
@@ -56,7 +56,6 @@ fun HomePage() {
     val context = LocalContext.current
     val snackBarState = remember { SnackbarHostState() }
     var showFloatingAction by remember { mutableStateOf(true) }
-    var currentIndex by remember { mutableIntStateOf(0) }
     var appBarTitle by remember { mutableStateOf("") }
     val navigationItems = remember(Unit) {
         listOf(
@@ -82,12 +81,17 @@ fun HomePage() {
             )
         )
     }
+    viewModel.onAppBarTitleChanged = {
+        appBarTitle = it
+    }
     //endregion
 
     CompositionLocalProvider(
         LocalHomePageViewModel provides viewModel,
         LocalHomePageSnackBarHostState provides snackBarState
     ) {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination
         Scaffold(
             topBar = { TopAppBar(title = { Text(text = appBarTitle) }) },
             floatingActionButton = {
@@ -97,7 +101,7 @@ fun HomePage() {
                     exit = scaleOut()
                 ) {
                     FloatingActionButton(onClick = {
-                        viewModel.onFabClick(navigationItems[currentIndex].third)
+                        viewModel.onFabClick(currentDestination?.route)
                     }) {
                         Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
                     }
@@ -106,9 +110,8 @@ fun HomePage() {
             bottomBar = {
                 NavigationBar {
                     navigationItems.forEachIndexed { index, (icon, text, route) ->
-                        NavigationBarItem(selected = currentIndex == index,
+                        NavigationBarItem(selected = currentDestination?.hierarchy?.any { it.route == route } == true,
                             onClick = {
-                                currentIndex = index
                                 navController.navigate(route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
@@ -135,12 +138,10 @@ fun HomePage() {
                 ) {
                     composable(Page.MainPage.Device.route) {
                         showFloatingAction = true
-                        appBarTitle = stringResource(id = R.string.title_devices)
                         DevicesPage()
                     }
                     composable(Page.MainPage.Keys.route) {
                         showFloatingAction = true
-                        appBarTitle = stringResource(id = R.string.title_keys)
                         TokenPage()
                     }
                     composable(
@@ -148,12 +149,10 @@ fun HomePage() {
                         deepLinks = listOf(navDeepLink { uriPattern = messagePageUri })
                     ) {
                         showFloatingAction = true
-                        appBarTitle = stringResource(id = R.string.title_messages)
                         MessagesPage()
                     }
                     composable(Page.MainPage.Setting.route) {
                         showFloatingAction = false
-                        appBarTitle = stringResource(id = R.string.title_settings)
                         SettingsPage()
                     }
                 }

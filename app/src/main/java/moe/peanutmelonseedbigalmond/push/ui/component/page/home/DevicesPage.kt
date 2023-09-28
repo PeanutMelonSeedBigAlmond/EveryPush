@@ -134,6 +134,7 @@ fun DevicesPage() {
             .pullRefresh(refreshState),
         contentAlignment = Alignment.Center
     ) {
+        homePageViewModel.appBarTitle = stringResource(id = R.string.title_devices)
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(8.dp),

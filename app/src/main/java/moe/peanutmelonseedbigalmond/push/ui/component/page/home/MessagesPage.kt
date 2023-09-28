@@ -148,6 +148,7 @@ fun MessagesPage() {
             .fillMaxSize()
             .pullRefresh(state = refreshState)
     ) {
+        homePageViewModel.appBarTitle = stringResource(id = R.string.title_messages)
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(8.dp),
