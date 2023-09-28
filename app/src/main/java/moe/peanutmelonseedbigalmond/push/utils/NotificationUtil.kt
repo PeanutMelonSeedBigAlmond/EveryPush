@@ -5,9 +5,12 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import android.text.Spanned
 import android.util.Log
@@ -20,8 +23,11 @@ import androidx.core.app.NotificationCompat.BigTextStyle
 import androidx.core.app.NotificationManagerCompat
 import moe.peanutmelonseedbigalmond.push.App
 import moe.peanutmelonseedbigalmond.push.R
+import moe.peanutmelonseedbigalmond.push.ui.MainActivity
 
 object NotificationUtil {
+    private const val NOTIFICATION_REQUEST_CODE = 0
+
     /**
      * 通知渠道
      * @property id String
@@ -93,6 +99,19 @@ object NotificationUtil {
             .setLargeIcon(
                 BitmapFactory.decodeResource(App.context.resources, R.drawable.ic_notifications)
             )
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    App.context, NOTIFICATION_REQUEST_CODE,
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/message"),
+                        App.context,
+                        MainActivity::class.java
+                    ),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+            .setAutoCancel(true)
             .build()
         return sendNotification(notification, id ?: time.toInt())
     }
@@ -115,6 +134,19 @@ object NotificationUtil {
             .setLargeIcon(
                 BitmapFactory.decodeResource(App.context.resources, R.drawable.ic_notifications)
             )
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    App.context, NOTIFICATION_REQUEST_CODE,
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/message"),
+                        App.context,
+                        MainActivity::class.java
+                    ),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+            .setAutoCancel(true)
             .build()
         return sendNotification(notification, id ?: time.toInt())
     }
@@ -136,6 +168,19 @@ object NotificationUtil {
             .setWhen(time)
             .setSmallIcon(R.drawable.ic_notifications)
             .setContentText(App.context.getString(R.string.image_notification_brief))
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    App.context, NOTIFICATION_REQUEST_CODE,
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/message"),
+                        App.context,
+                        MainActivity::class.java
+                    ),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+            .setAutoCancel(true)
             .build()
         return sendNotification(notification, id ?: time.toInt())
     }

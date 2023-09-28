@@ -19,11 +19,18 @@
 
         <activity
             android:name=".ui.MainActivity"
+            android:launchMode="singleInstance"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <data
+                    android:host="moe.peanutmelonseedbigalmond.push"
+                    android:scheme="app" />
             </intent-filter>
         </activity>
 

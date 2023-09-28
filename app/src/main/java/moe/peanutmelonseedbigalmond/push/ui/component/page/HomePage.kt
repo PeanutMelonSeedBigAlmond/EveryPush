@@ -37,12 +37,15 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.page.home.DevicesPage
 import moe.peanutmelonseedbigalmond.push.ui.component.page.home.MessagesPage
 import moe.peanutmelonseedbigalmond.push.ui.component.page.home.SettingsPage
 import moe.peanutmelonseedbigalmond.push.ui.component.page.home.TokenPage
 import moe.peanutmelonseedbigalmond.push.ui.viewmodel.HomePageViewModel
+
+private const val messagePageUri = "app://moe.peanutmelonseedbigalmond.push/pages/message"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,8 +110,11 @@ fun HomePage() {
                             onClick = {
                                 currentIndex = index
                                 navController.navigate(route) {
-                                    popUpTo(navController.graph.findStartDestination().id)
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
                                     launchSingleTop = true
+                                    restoreState = true
                                 }
                             },
                             icon = {
@@ -137,7 +143,10 @@ fun HomePage() {
                         appBarTitle = stringResource(id = R.string.title_keys)
                         TokenPage()
                     }
-                    composable(Page.MainPage.Message.route) {
+                    composable(
+                        route = Page.MainPage.Message.route,
+                        deepLinks = listOf(navDeepLink { uriPattern = messagePageUri })
+                    ) {
                         showFloatingAction = true
                         appBarTitle = stringResource(id = R.string.title_messages)
                         MessagesPage()
