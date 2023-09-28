@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CircularProgressIndicator
@@ -95,7 +96,9 @@ fun MessageItem(messageData: MessageData, onDeleteAction: (MessageData) -> Unit)
 @Composable
 private fun TextMessageContent(text: String) {
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-        Text(text = text, modifier = Modifier.padding(12.dp))
+        SelectionContainer {
+            Text(text = text, modifier = Modifier.padding(12.dp))
+        }
     }
 }
 
@@ -152,6 +155,7 @@ fun MarkdownContent(content: String) {
                 .padding(12.dp)
         ) {
             markwon.setMarkdown(it, content)
+            it.setTextIsSelectable(true)
         }
     }
 }
