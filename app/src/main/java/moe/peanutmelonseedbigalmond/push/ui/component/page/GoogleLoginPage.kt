@@ -182,7 +182,6 @@ fun GoogleLoginPage() {
                 val intentSendRequest =
                     IntentSenderRequest.Builder(it.pendingIntent.intentSender).build()
                 googleLoginActivityLauncher.launch(intentSendRequest)
-                loadingDialogShow = false
             }
             .addOnFailureListener {
                 it.printStackTrace()
