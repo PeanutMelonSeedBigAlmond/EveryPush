@@ -1,7 +1,6 @@
 package moe.peanutmelonseedbigalmond.push.ui.component.widget
 
 import android.util.Log
-import android.widget.TextView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +40,7 @@ import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalMarkwon
+import moe.peanutmelonseedbigalmond.push.ui.component.widget.view.SelectableAndClickableTextView
 import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
 import java.text.DateFormat
 import java.util.Date
@@ -148,14 +148,13 @@ fun MarkdownContent(content: String) {
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
         AndroidView(
             factory = {
-                TextView(it)
+                SelectableAndClickableTextView(it).apply { setTextIsSelectable(true) }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
             markwon.setMarkdown(it, content)
-            it.setTextIsSelectable(true)
         }
     }
 }
