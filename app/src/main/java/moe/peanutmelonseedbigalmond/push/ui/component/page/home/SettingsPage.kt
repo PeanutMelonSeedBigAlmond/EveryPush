@@ -35,23 +35,24 @@ import moe.peanutmelonseedbigalmond.push.network.Client
 import moe.peanutmelonseedbigalmond.push.repository.AppConfigurationRepository
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalActivity
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalActivityCoroutineScope
+import moe.peanutmelonseedbigalmond.push.ui.component.LocalAppNavHostController
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
-import moe.peanutmelonseedbigalmond.push.ui.component.LocalNavHostController
 import moe.peanutmelonseedbigalmond.push.ui.component.page.LocalHomePageSnackBarHostState
 import moe.peanutmelonseedbigalmond.push.ui.component.page.LocalHomePageViewModel
 import moe.peanutmelonseedbigalmond.push.ui.component.page.Page
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.MenuPreferences
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.PreferenceGroup
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.TextPreferences
+import moe.peanutmelonseedbigalmond.push.utils.NotificationUtil
 
 @Composable
 fun SettingsPage() {
     //region 变量
-    val appNavHostController = LocalNavHostController.current
+    val appNavHostController = LocalAppNavHostController.current
     val globalViewModel = LocalGlobalViewModel.current
     val homePageViewModel = LocalHomePageViewModel.current
     val activityCoroutineScope = LocalActivityCoroutineScope.current
-    val deviceList by remember(homePageViewModel) { homePageViewModel.deviceList }
+    val deviceList by remember(globalViewModel) { globalViewModel.deviceList }
     var username by remember { mutableStateOf("") }
     //endregion
 
@@ -59,7 +60,7 @@ fun SettingsPage() {
     suspend fun getUserInfo() {
         try {
             val userInfo = globalViewModel.client.getUserInfo()
-            username = userInfo.username
+            username = userInfo.token.user.username
         } catch (_: CancellationException) {
         } catch (e: Exception) {
             Log.w("SettingsPage", "getUserInfo: 获取用户信息失败")
@@ -97,6 +98,7 @@ fun SettingsPage() {
                             }
                         }
                     }
+                NotificationUtil.clearNotificationChannel()
 
                 globalViewModel.clearUserConfig()
                 appNavHostController.navigate(Page.Guide.route) {

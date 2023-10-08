@@ -1,0 +1,6 @@
+mutation UserLogin($firebaseToken:String!){
+    login(firebaseToken:$firebaseToken){
+        token
+        expiredAt
+    }
+}

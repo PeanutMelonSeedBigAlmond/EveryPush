@@ -6,10 +6,25 @@ sealed class Page(val route: String) {
     object GoogleLogin : Page("GoogleLogin")
     object Main : Page("Main")
 
+    object TopicDetail : Page("TopicDetail?topicId={topicId}") {
+        object Args {
+            const val TopicId = "topicId"
+        }
+
+        fun buildRouteWithArgs(topicId: String?): String {
+            if (topicId == null) {
+                return "TopicDetail"
+            }
+            return "TopicDetail?topicId=${topicId}"
+        }
+    }
+
+    object Message : Page("Message")
+
     object MainPage {
         object Device : Page("Device")
         object Keys : Page("Keys")
-        object Message : Page("Message")
+        object Topics : Page("Topics")
         object Setting : Page("Setting")
     }
 }

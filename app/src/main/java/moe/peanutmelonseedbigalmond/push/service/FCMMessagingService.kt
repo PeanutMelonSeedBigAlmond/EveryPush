@@ -46,46 +46,71 @@ class FCMMessagingService : FirebaseMessagingService(),
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
+        if (UserTokenRepository.token.isBlank()) return // 非登录态
+
         val messageData = message.data
-        val title = messageData["title"] ?: getString(R.string.default_notification_title)
+        val command = messageData["command"]?.toIntOrNull()
+        val title = messageData["title"] ?: getString(R.string.title_default_notification)
         val messageText = messageData["text"]
         val messageType = messageData["type"]
+        val topic = messageData["topic"]
+        val topicName = messageData["topicName"]
 
-        if (messageText != null) {
-            if (UserTokenRepository.token.isNotBlank()) { // 登录态
-                when (messageType) {
-                    "text" -> sendTextNotification(title, messageText)
-                    "image" -> sendImageNotification(title, messageText)
-                    else -> sendMarkdownMessage(title, markwon.toMarkdown(messageText))
+        if (command == 0) { // 收到消息
+            if (messageText != null) {
+                if (topic != null && topicName != null) {
+                    NotificationUtil.setupNotificationChannel(topic, topicName)
                 }
+                when (messageType) {
+                    "text" -> sendTextNotification(title, messageText, topic)
+                    "image" -> sendImageNotification(title, messageText, topic)
+                    "markdown" -> sendMarkdownMessage(title, markwon.toMarkdown(messageText), topic)
+                    else -> sendTextNotification(title, messageText, topic)
+                }
+            } else {
+                Log.w("FCMMessagingService", "onMessageReceived: message body is null")
             }
-        } else {
-            Log.w("FCMMessagingService", "onMessageReceived: message body is null")
+        } else if (command == 1) { // 添加 topic
+            if (topic != null && topicName != null) {
+                NotificationUtil.setupNotificationChannel(topic, topicName)
+            } else {
+                Log.w(
+                    "FCMMessagingService",
+                    "onMessageReceived: 设置通知渠道失败：id=$topic, name=$topicName"
+                )
+            }
+        } else if (command == 2) { // 删除 topic
+            if (topic != null) {
+                NotificationUtil.deleteNotificationChannel(topic)
+            } else {
+                Log.w("FCMMessagingService", "onMessageReceived: 删除通知渠道失败")
+            }
         }
     }
 
-    private fun sendTextNotification(title: String, content: String): Int? {
-        return NotificationUtil.sendTextNotification(title, content)
+    private fun sendTextNotification(title: String, content: String, channelId: String?): Int? {
+        return NotificationUtil.sendTextNotification(title, content, channelId)
     }
 
-    private fun sendMarkdownMessage(title: String, content: Spanned): Int? {
-        return NotificationUtil.sendMarkdownTextNotification(title, content)
+    private fun sendMarkdownMessage(title: String, content: Spanned, channelId: String?): Int? {
+        return NotificationUtil.sendMarkdownTextNotification(title, content, channelId)
     }
 
-    private fun sendImageNotification(title: String, imageUrl: String) {
+    private fun sendImageNotification(title: String, imageUrl: String, channelId: String?) {
         val imageRequest = ImageRequest.Builder(this)
             .data(imageUrl)
             .build()
         launch {
             val notificationId =
-                sendTextNotification(title, getString(R.string.image_notification_brief))
+                sendTextNotification(title, getString(R.string.image_notification_brief), channelId)
             try {
                 val bitmap =
                     withContext(Dispatchers.IO) { imageLoader.execute(imageRequest).drawable as BitmapDrawable? }
                 if (bitmap != null) {
                     NotificationUtil.sendNotificationWithImage(
-                        getString(R.string.default_notification_title),
+                        getString(R.string.title_default_notification),
                         bitmap.bitmap,
+                        channelId,
                         notificationId
                     )
                 }

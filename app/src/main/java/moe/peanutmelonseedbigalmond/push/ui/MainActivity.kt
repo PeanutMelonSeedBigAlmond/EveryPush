@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispa
             Toast.makeText(this, R.string.allow_necessary_premissions, Toast.LENGTH_SHORT).show()
             finish()
         } else {
-            NotificationUtil.setupNotificationChannel()
+            NotificationUtil.setupDefaultNotificationChannel()
         }
     }
     private lateinit var markwon: Markwon
@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispa
                 PackageManager.PERMISSION_GRANTED
             ) {
                 // FCM SDK (and your app) can post notifications.
-                NotificationUtil.setupNotificationChannel()
+                NotificationUtil.setupDefaultNotificationChannel()
             } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
                 AlertDialog.Builder(this)
                     .setMessage(R.string.allow_app_notification_premission)
@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispa
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         } else {
-            NotificationUtil.setupNotificationChannel()
+            NotificationUtil.setupDefaultNotificationChannel()
         }
     }
 }

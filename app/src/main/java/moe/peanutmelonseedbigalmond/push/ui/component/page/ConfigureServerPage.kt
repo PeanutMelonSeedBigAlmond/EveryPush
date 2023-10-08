@@ -32,8 +32,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.network.Client
+import moe.peanutmelonseedbigalmond.push.ui.component.LocalAppNavHostController
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
-import moe.peanutmelonseedbigalmond.push.ui.component.LocalNavHostController
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.LoadingDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,7 +41,7 @@ import moe.peanutmelonseedbigalmond.push.ui.component.widget.LoadingDialog
 fun ConfigureServerPage() {
     val snackBarHostState = remember { SnackbarHostState() }
     val globalViewModel = LocalGlobalViewModel.current
-    val navHostController = LocalNavHostController.current
+    val navHostController = LocalAppNavHostController.current
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     var serverEndpoint by remember { mutableStateOf("") }
@@ -75,7 +75,10 @@ fun ConfigureServerPage() {
             val endpointUrl = serverEndpoint.trim()
             try {
                 val client = Client(endpointUrl)
-                withContext(Dispatchers.IO) { client.ping() }
+                withContext(Dispatchers.IO) {
+                    val response = client.ping()
+                    check(response.ping == "pong~")
+                }
                 onConfigureServerSuccess()
             } catch (e: Exception) {
                 e.printStackTrace()

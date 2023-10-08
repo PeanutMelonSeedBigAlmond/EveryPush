@@ -39,8 +39,8 @@ import com.google.firebase.auth.OAuthProvider
 import kotlinx.coroutines.launch
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalActivity
+import moe.peanutmelonseedbigalmond.push.ui.component.LocalAppNavHostController
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
-import moe.peanutmelonseedbigalmond.push.ui.component.LocalNavHostController
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.LoadingDialog
 
 @ExperimentalMaterial3Api
@@ -49,7 +49,7 @@ import moe.peanutmelonseedbigalmond.push.ui.component.widget.LoadingDialog
 fun GoogleLoginPage() {
     //region 变量
     val globalViewModel = LocalGlobalViewModel.current
-    val navController = LocalNavHostController.current
+    val navController = LocalAppNavHostController.current
     val context = LocalContext.current
     val activity = LocalActivity.current
     val coroutineScope = rememberCoroutineScope()
@@ -77,7 +77,7 @@ fun GoogleLoginPage() {
         coroutineScope.launch {
             loadingDialogShow = true
             try {
-                val loginResponse = globalViewModel.client.login(token)
+                val loginResponse = globalViewModel.client.userLogin(token)
                 globalViewModel.token = loginResponse.token
                 globalViewModel.tokenExpiredAt = loginResponse.expiredAt
                 globalViewModel.saveUserConfig()

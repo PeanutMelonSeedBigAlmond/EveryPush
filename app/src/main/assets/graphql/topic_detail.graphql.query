@@ -1,0 +1,13 @@
+query TopicDetail($token:String!,$topicId:String){
+    topic:topicDetail(token:$token,topicId:$topicId){
+        id
+        name
+        messages{
+            id
+            title
+            text
+            type
+            sendAt
+        }
+    }
+}

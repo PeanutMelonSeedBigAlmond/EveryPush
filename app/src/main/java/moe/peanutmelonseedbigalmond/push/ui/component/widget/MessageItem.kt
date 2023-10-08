@@ -42,14 +42,11 @@ import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalMarkwon
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.view.SelectableAndClickableTextView
 import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
-import java.text.DateFormat
-import java.util.Date
+import moe.peanutmelonseedbigalmond.push.utils.DatetimeUtils
 
 @Composable
 fun MessageItem(messageData: MessageData, onDeleteAction: (MessageData) -> Unit) {
-    val dateFormatter =
-        DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT) // yyyy年MM月dd日 HH:mm
-    val datetimeString = dateFormatter.format(Date(messageData.sendTime))
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -63,9 +60,14 @@ fun MessageItem(messageData: MessageData, onDeleteAction: (MessageData) -> Unit)
         ) {
             Text(
                 text = if (messageData.title.isNotBlank()) {
-                    "${messageData.title} · $datetimeString"
+                    "${messageData.title} · ${
+                        DatetimeUtils.getDateString(
+                            context,
+                            messageData.sendTime
+                        )
+                    }"
                 } else {
-                    datetimeString
+                    DatetimeUtils.getDateString(context, messageData.sendTime)
                 }
             )
             MoreOptionsMenu {

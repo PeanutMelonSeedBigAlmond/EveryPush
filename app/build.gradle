@@ -84,8 +84,8 @@ dependencies {
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.15.0"
     implementation "com.google.accompanist:accompanist-insets:0.15.0"
     implementation "com.google.accompanist:accompanist-insets-ui:0.15.0"
-    implementation "androidx.compose.runtime:runtime:1.5.1"
-    implementation "androidx.compose.runtime:runtime-livedata:1.5.1"
+//    implementation "androidx.compose.runtime:runtime:1.5.1"
+//    implementation "androidx.compose.runtime:runtime-livedata:1.5.1"
     //endregion
 
     //region Google 服务组件

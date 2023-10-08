@@ -50,7 +50,7 @@ fun TokenPage() {
     val snackBarHostState = LocalHomePageSnackBarHostState.current
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var keys by remember(homePageViewModel) { homePageViewModel.tokenList }
+    var keys by remember(globalViewModel) { globalViewModel.tokenList }
     var isRefreshing by remember { mutableStateOf(false) }
     var currentRenamingKey by remember { mutableStateOf<TokenData?>(null) }
     //endregion

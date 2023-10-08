@@ -1,0 +1,6 @@
+mutation SendMessage($params:PushMessageParams!){
+    message:pushMessage(params:$params){
+        failedCount
+        pushedAt
+    }
+}

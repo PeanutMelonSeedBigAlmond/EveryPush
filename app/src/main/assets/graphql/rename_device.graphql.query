@@ -1,0 +1,8 @@
+mutation RenameDevice($params:DeviceRenameParams!){
+    renameDevice(param:$params){
+        id
+        name
+        type
+        deviceId
+    }
+}

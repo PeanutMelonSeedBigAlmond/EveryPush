@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import moe.peanutmelonseedbigalmond.push.R
-import moe.peanutmelonseedbigalmond.push.network.response.DeviceRegisterResponse
+import moe.peanutmelonseedbigalmond.push.network.response.DeviceResponse
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
 import moe.peanutmelonseedbigalmond.push.ui.component.page.LocalHomePageSnackBarHostState
 import moe.peanutmelonseedbigalmond.push.ui.component.page.LocalHomePageViewModel
@@ -47,7 +47,7 @@ fun DevicesPage() {
     val snackBarHostState = LocalHomePageSnackBarHostState.current
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var devices by remember(homePageViewModel) { homePageViewModel.deviceList }
+    var devices by remember(globalViewModel) { globalViewModel.deviceList }
     var isRefreshing by remember { mutableStateOf(false) }
     var currentRenamingDevice by remember { mutableStateOf<DeviceData?>(null) }
     //endregion
@@ -69,7 +69,7 @@ fun DevicesPage() {
     suspend fun listDevices() {
         isRefreshing = true
         try {
-            val deviceList = globalViewModel.client.fetchDevices()
+            val deviceList = globalViewModel.client.listDevices()
             devices = deviceList.map {
                 return@map DeviceData(it.id, it.name, it.deviceId)
             }
@@ -87,13 +87,13 @@ fun DevicesPage() {
      * 注册设备
      * @return DeviceRegisterResponse
      */
-    suspend fun registerDevice(): DeviceRegisterResponse {
+    suspend fun registerDevice(): DeviceResponse {
         if (globalViewModel.fcmToken == null) {
             throw Exception(context.getString(R.string.get_firebase_token_failed))
         } else {
             return globalViewModel.client.registerDevice(
-                DeviceUtil.getDeviceName(),
-                globalViewModel.fcmToken!!
+                globalViewModel.fcmToken!!,
+                DeviceUtil.getDeviceName()
             )
         }
     }
@@ -189,7 +189,7 @@ fun DevicesPage() {
                 isRefreshing = true
                 coroutineScope.launch {
                     try {
-                        globalViewModel.client.renameDevice(newName, device.id)
+                        globalViewModel.client.renameDevice(device.id, newName)
                         listDevices()
                     } catch (_: CancellationException) {
                     } catch (e: Exception) {

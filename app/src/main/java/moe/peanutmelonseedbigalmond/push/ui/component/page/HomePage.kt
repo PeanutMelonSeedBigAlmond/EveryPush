@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,15 +38,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navDeepLink
 import moe.peanutmelonseedbigalmond.push.R
+import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
 import moe.peanutmelonseedbigalmond.push.ui.component.page.home.DevicesPage
-import moe.peanutmelonseedbigalmond.push.ui.component.page.home.MessagesPage
 import moe.peanutmelonseedbigalmond.push.ui.component.page.home.SettingsPage
 import moe.peanutmelonseedbigalmond.push.ui.component.page.home.TokenPage
+import moe.peanutmelonseedbigalmond.push.ui.component.page.home.TopicsPage
+import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
+import moe.peanutmelonseedbigalmond.push.ui.data.TopicData
 import moe.peanutmelonseedbigalmond.push.ui.viewmodel.HomePageViewModel
-
-private const val messagePageUri = "app://moe.peanutmelonseedbigalmond.push/pages/message"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,8 +72,8 @@ fun HomePage() {
             ),
             Triple(
                 Icons.Rounded.Message,
-                context.getString(R.string.title_messages),
-                Page.MainPage.Message.route
+                context.getString(R.string.title_topics),
+                Page.MainPage.Topics.route
             ),
             Triple(
                 Icons.Rounded.Settings,
@@ -81,10 +82,26 @@ fun HomePage() {
             )
         )
     }
+    val globalViewModel = LocalGlobalViewModel.current
     viewModel.onAppBarTitleChanged = {
         appBarTitle = it
     }
     //endregion
+
+    LaunchedEffect(key1 = Unit) {
+        val topic = try {
+            globalViewModel.client.listTopicAndLatestMessage()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }?.map {
+            val latestMessage = it.latestMessage?.let {
+                return@let MessageData(it.type, it.title, it.text, it.id, it.sendAt)
+            }
+            return@map TopicData(it.id, it.name, latestMessage)
+        }
+        globalViewModel.topicsList = topic
+    }
 
     CompositionLocalProvider(
         LocalHomePageViewModel provides viewModel,
@@ -144,12 +161,9 @@ fun HomePage() {
                         showFloatingAction = true
                         TokenPage()
                     }
-                    composable(
-                        route = Page.MainPage.Message.route,
-                        deepLinks = listOf(navDeepLink { uriPattern = messagePageUri })
-                    ) {
+                    composable(Page.MainPage.Topics.route) {
                         showFloatingAction = true
-                        MessagesPage()
+                        TopicsPage()
                     }
                     composable(Page.MainPage.Setting.route) {
                         showFloatingAction = false

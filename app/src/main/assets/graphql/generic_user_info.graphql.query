@@ -1,0 +1,7 @@
+query QueryUserInfo($token:String!){
+    token(loginToken:$token){
+        user{
+            username:name
+        }
+    }
+}

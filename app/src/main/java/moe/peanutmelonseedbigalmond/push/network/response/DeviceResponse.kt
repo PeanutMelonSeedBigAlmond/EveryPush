@@ -1,8 +1,8 @@
 package moe.peanutmelonseedbigalmond.push.network.response
 
-data class FetchTokenResponse(
+data class DeviceResponse(
     val id: Long,
-    val token: String,
+    val deviceId: String,
     val name: String,
-    val generatedAt: Long,
+    val type: String,
 )

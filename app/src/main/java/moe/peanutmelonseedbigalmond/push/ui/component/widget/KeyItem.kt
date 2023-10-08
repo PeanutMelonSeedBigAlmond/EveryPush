@@ -20,12 +20,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.data.TokenData
-import java.text.DateFormat
-import java.util.Date
+import moe.peanutmelonseedbigalmond.push.utils.DatetimeUtils
 
 @Composable
 fun KeyItem(
@@ -35,7 +35,7 @@ fun KeyItem(
     onCopyAction: (TokenData) -> Unit,
     onItemClick: (TokenData) -> Unit
 ) {
-    val dateFormatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+    val context = LocalContext.current
     OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -71,7 +71,7 @@ fun KeyItem(
                         contentDescription = "Date icon"
                     )
                     Text(
-                        text = dateFormatter.format(Date(key.createTime)),
+                        text = DatetimeUtils.getDateString(context, key.createTime),
                         modifier = Modifier.padding(4.dp)
                     )
                 }

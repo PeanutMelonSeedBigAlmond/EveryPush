@@ -16,7 +16,6 @@
     <string name="error_not_login">用户未登录</string>
     <string name="title_devices">设备</string>
     <string name="title_keys">密钥</string>
-    <string name="title_messages">消息</string>
     <string name="title_settings">设置</string>
     <string name="get_firebase_token_failed">获取 Firebase token 失败</string>
     <string name="tip_no_device">没有设备</string>
@@ -24,7 +23,6 @@
     <string name="create_or_get_keys_first">请先创建或获取密钥</string>
     <string name="tip_no_message">没有消息</string>
     <string name="message_will_be_sent_as_text">消息将作为文本发送</string>
-    <string name="message_content">内容</string>
     <string name="title_account_settings">账号</string>
     <string name="account">账号</string>
     <string name="logout">退出登录</string>
@@ -38,16 +36,26 @@
     <string name="copy">复制</string>
     <string name="failed_to_load_image">加载图片失败</string>
     <string name="image_is_empty">图片为空</string>
-    <string name="default_notification_title">通知</string>
+    <string name="title_default_notification">未分类的消息</string>
     <string name="image_notification_brief">收到一张图片</string>
-    <string name="markdown_norification_brief">收到一条富文本消息</string>
     <string name="login_with_microsoft">通过 Microsoft 账号登录</string>
     <string name="login_account_tips">注意：不论使用何种登录方式，只要它们的电子邮件地址相同，系统都会将其视为同一账户</string>
-    <string name="notification_channel_image">图片</string>
-    <string name="notification_channel_text">文本</string>
+
     <string name="notification_channel_group_received_messages">收到的消息</string>
     <string name="fcm_diagnostics_perf">FCM 诊断</string>
     <string name="fcm_diagnostics_pref_summary">打开 FCM 诊断页面</string>
     <string name="error_cannot_start_activity">无法打开指定页面</string>
     <string name="title_other_settings">其他</string>
+    <string name="title_topics">话题</string>
+    <string name="title_topic_detail">话题详情</string>
+    <string name="action_send_message">发送消息</string>
+    <string name="title_create_topic">创建话题</string>
+    <string name="tip_id_cannot_changed">注意： ID 在话题创建后不允许更改</string>
+    <string name="input_hint_topic_id">话题 ID</string>
+    <string name="input_hint_topic_name">话题名称</string>
+    <string name="tip_malformed_input">格式不符合要求</string>
+    <string name="tip_field_cannot_be_changed">不允许修改</string>
+    <string name="tips_yesterday_datetime">昨天 %1$s</string>
+    <string name="tips_today_datetime">今天 %1$s</string>
+    <string name="tip_two_days_ago_datetime">前天 %1$s</string>
 </resources>

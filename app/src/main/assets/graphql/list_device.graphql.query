@@ -1,0 +1,8 @@
+query ListDevice($token:String!){
+    devices:listDevices(token:$token){
+        id
+        name
+        type
+        deviceId
+    }
+}

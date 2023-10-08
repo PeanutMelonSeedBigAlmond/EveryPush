@@ -1,8 +1,8 @@
 package moe.peanutmelonseedbigalmond.push.network.response
 
-data class DeviceRegisterResponse(
+data class KeyResponse(
     val id: Long,
-    val uid: Long,
+    val token: String,
     val name: String,
-    val deviceId: String,
+    val generatedAt: Long,
 )

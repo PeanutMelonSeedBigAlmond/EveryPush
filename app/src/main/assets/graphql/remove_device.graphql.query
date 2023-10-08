@@ -1,0 +1,8 @@
+mutation RemoveDevice($token:String!,$id:ID!){
+    removeDevice(token:$token,id:$id){
+        id
+        name
+        type
+        deviceId
+    }
+}

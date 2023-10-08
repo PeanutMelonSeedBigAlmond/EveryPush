@@ -3,7 +3,6 @@ package moe.peanutmelonseedbigalmond.push.utils
 import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
-import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
@@ -14,8 +13,6 @@ import android.net.Uri
 import android.os.Build
 import android.text.Spanned
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BigPictureStyle
@@ -28,70 +25,124 @@ import moe.peanutmelonseedbigalmond.push.ui.MainActivity
 object NotificationUtil {
     private const val NOTIFICATION_REQUEST_CODE = 0
 
-    /**
-     * 通知渠道
-     * @property id String
-     * @property notificationChannelName String
-     * @constructor
-     */
-    private sealed class AppNotificationChannel(
-        val id: String,
-        val notificationChannelName: String
+    private const val INTERNAL_NOTIFICATION_CHANNEL_PREFIX = "EveryPush.Internal"
+    private const val USER_NOTIFICATION_CHANNEL_PREFIX = "EveryPush.User"
+    private const val DEFAULT_NOTIFICATION_CHANNEL =
+        "${INTERNAL_NOTIFICATION_CHANNEL_PREFIX}.Default"
+
+    fun setupDefaultNotificationChannel() {
+        val notificationManager = NotificationManagerCompat.from(App.context)
+        if (SystemUtils.isNewerThanO()) {
+            notificationManager.createNotificationChannel(
+                NotificationChannel(
+                    DEFAULT_NOTIFICATION_CHANNEL,
+                    App.context.getString(R.string.title_default_notification),
+                    NotificationManager.IMPORTANCE_HIGH
+                )
+            )
+        }
+    }
+
+    fun setupNotificationChannels(channelIdAndName: Map<String?, String?>) {
+        if (!SystemUtils.isNewerThanO()) return
+        val nm = NotificationManagerCompat.from(App.context)
+        val inputChannelAndName = channelIdAndName.map { (k, v) ->
+            if (k != null) {
+                return@map "$USER_NOTIFICATION_CHANNEL_PREFIX.$k" to v!!
+            } else {
+                // 默认通知渠道
+                return@map DEFAULT_NOTIFICATION_CHANNEL to App.context.getString(R.string.notification_channel_group_received_messages)
+            }
+        }.toMap()
+
+        val registeredNotificationChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            nm.notificationChannels.associate { it.id to it.name }
+        } else {
+            emptyMap()
+        }
+
+        val newNotificationChannel = inputChannelAndName - registeredNotificationChannel.keys
+        val deletedNotificationChannel = registeredNotificationChannel - inputChannelAndName.keys
+
+        newNotificationChannel.forEach { (id, name) ->
+            nm.createNotificationChannel(
+                NotificationChannel(
+                    id.toString(),
+                    name,
+                    NotificationManager.IMPORTANCE_HIGH
+                )
+            )
+        }
+
+        deletedNotificationChannel.forEach { (id, _) ->
+            nm.deleteNotificationChannel(id.toString())
+        }
+    }
+
+    fun setupNotificationChannel(
+        topicId: String,
+        name: String
     ) {
-        constructor(id: String, @StringRes notificationChannelName: Int) : this(
-            id,
-            App.context.getString(notificationChannelName)
-        )
-
-        object Markdown : AppNotificationChannel("markdown", R.string.notification_channel_markdown)
-        object Text : AppNotificationChannel("text", R.string.notification_channel_text)
-        object Image : AppNotificationChannel("image", R.string.notification_channel_image)
+        val nm = NotificationManagerCompat.from(App.context)
+        if (SystemUtils.isNewerThanO()) {
+            nm.createNotificationChannel(
+                NotificationChannel(
+                    "$USER_NOTIFICATION_CHANNEL_PREFIX.$topicId",
+                    name,
+                    NotificationManager.IMPORTANCE_HIGH
+                )
+            )
+        }
     }
 
-    /**
-     * 通知渠道组
-     * @property id String
-     * @property groupName String
-     * @constructor
-     */
-    private sealed class AppNotificationChannelGroup(val id: String, val groupName: String) {
-        constructor(id: String, @StringRes groupName: Int) : this(
-            id,
-            App.context.getString(groupName)
-        )
-
-        object ReceivedMessages : AppNotificationChannelGroup(
-            "received_messages",
-            R.string.notification_channel_group_received_messages
-        )
+    fun deleteNotificationChannel(id: String) {
+        val nm = NotificationManagerCompat.from(App.context)
+        if (SystemUtils.isNewerThanO()) {
+            nm.deleteNotificationChannel(id)
+        }
     }
 
-    fun setupNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = NotificationManagerCompat.from(App.context)
-            notificationManager.createNotificationChannelGroup(AppNotificationChannelGroup.ReceivedMessages)
-            notificationManager.createNotificationChannel(
-                channel = AppNotificationChannel.Image,
-                group = AppNotificationChannelGroup.ReceivedMessages
-            )
-            notificationManager.createNotificationChannel(
-                channel = AppNotificationChannel.Text,
-                group = AppNotificationChannelGroup.ReceivedMessages
-            )
-            notificationManager.createNotificationChannel(
-                channel = AppNotificationChannel.Markdown,
-                group = AppNotificationChannelGroup.ReceivedMessages
-            )
+    fun clearNotificationChannel() {
+        val nm = NotificationManagerCompat.from(App.context)
+        if (SystemUtils.isNewerThanO()) {
+            nm.notificationChannels.forEach {
+                nm.deleteNotificationChannel(it.id)
+            }
         }
     }
 
     fun sendTextNotification(
         title: String,
         content: CharSequence,
+        topicId: String?,
         id: Int? = null,
         time: Long = System.currentTimeMillis()
     ): Int? {
-        val notification = AppNotificationChannel.Text.notificationBuilder()
+        val pendingIntent = if (topicId == null) {
+            PendingIntent.getActivity(
+                App.context, NOTIFICATION_REQUEST_CODE,
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/topicDetail"),
+                    App.context,
+                    MainActivity::class.java
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        } else {
+            PendingIntent.getActivity(
+                App.context, NOTIFICATION_REQUEST_CODE,
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/topicDetail?topicId=$topicId"),
+                    App.context,
+                    MainActivity::class.java
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+        val mChannelId = getNotificationChannelId(topicId)
+        val notification = NotificationCompat.Builder(App.context, mChannelId)
             .setContentTitle(title)
             .setContentText(content)
             .setWhen(time)
@@ -99,18 +150,12 @@ object NotificationUtil {
             .setLargeIcon(
                 BitmapFactory.decodeResource(App.context.resources, R.drawable.ic_notifications)
             )
-            .setContentIntent(
-                PendingIntent.getActivity(
-                    App.context, NOTIFICATION_REQUEST_CODE,
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/message"),
-                        App.context,
-                        MainActivity::class.java
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
+            .setContentIntent(pendingIntent)
+            .apply {
+                if (!SystemUtils.isNewerThanO()) {
+                    priority = NotificationCompat.PRIORITY_HIGH
+                }
+            }
             .setAutoCancel(true)
             .build()
         return sendNotification(notification, id ?: time.toInt())
@@ -119,10 +164,35 @@ object NotificationUtil {
     fun sendMarkdownTextNotification(
         title: String,
         content: Spanned,
+        topicId: String?,
         id: Int? = null,
         time: Long = System.currentTimeMillis()
     ): Int? {
-        val notification = AppNotificationChannel.Markdown.notificationBuilder()
+        val pendingIntent = if (topicId == null) {
+            PendingIntent.getActivity(
+                App.context, NOTIFICATION_REQUEST_CODE,
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/topicDetail"),
+                    App.context,
+                    MainActivity::class.java
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        } else {
+            PendingIntent.getActivity(
+                App.context, NOTIFICATION_REQUEST_CODE,
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/topicDetail?topicId=$topicId"),
+                    App.context,
+                    MainActivity::class.java
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+        val mChannelId = getNotificationChannelId(topicId)
+        val notification = NotificationCompat.Builder(App.context, mChannelId)
             .setStyle(
                 BigTextStyle()
                     .bigText(content)
@@ -134,18 +204,12 @@ object NotificationUtil {
             .setLargeIcon(
                 BitmapFactory.decodeResource(App.context.resources, R.drawable.ic_notifications)
             )
-            .setContentIntent(
-                PendingIntent.getActivity(
-                    App.context, NOTIFICATION_REQUEST_CODE,
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/message"),
-                        App.context,
-                        MainActivity::class.java
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
+            .setContentIntent(pendingIntent)
+            .apply {
+                if (!SystemUtils.isNewerThanO()) {
+                    priority = NotificationCompat.PRIORITY_HIGH
+                }
+            }
             .setAutoCancel(true)
             .build()
         return sendNotification(notification, id ?: time.toInt())
@@ -154,10 +218,35 @@ object NotificationUtil {
     fun sendNotificationWithImage(
         title: String,
         content: Bitmap,
+        topicId: String?,
         id: Int? = null,
         time: Long = System.currentTimeMillis()
     ): Int? {
-        val notification = AppNotificationChannel.Image.notificationBuilder()
+        val pendingIntent = if (topicId == null) {
+            PendingIntent.getActivity(
+                App.context, NOTIFICATION_REQUEST_CODE,
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/topicDetail"),
+                    App.context,
+                    MainActivity::class.java
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        } else {
+            PendingIntent.getActivity(
+                App.context, NOTIFICATION_REQUEST_CODE,
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/topicDetail?topicId=$topicId"),
+                    App.context,
+                    MainActivity::class.java
+                ),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+        val mChannelId = getNotificationChannelId(topicId)
+        val notification = NotificationCompat.Builder(App.context, mChannelId)
             .setContentTitle(title)
             .setLargeIcon(content)
             .setStyle(
@@ -168,18 +257,12 @@ object NotificationUtil {
             .setWhen(time)
             .setSmallIcon(R.drawable.ic_notifications)
             .setContentText(App.context.getString(R.string.image_notification_brief))
-            .setContentIntent(
-                PendingIntent.getActivity(
-                    App.context, NOTIFICATION_REQUEST_CODE,
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/message"),
-                        App.context,
-                        MainActivity::class.java
-                    ),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
+            .setContentIntent(pendingIntent)
+            .apply {
+                if (!SystemUtils.isNewerThanO()) {
+                    priority = NotificationCompat.PRIORITY_HIGH
+                }
+            }
             .setAutoCancel(true)
             .build()
         return sendNotification(notification, id ?: time.toInt())
@@ -206,26 +289,11 @@ object NotificationUtil {
         }
     }
 
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun NotificationManagerCompat.createNotificationChannelGroup(group: AppNotificationChannelGroup) {
-        this.createNotificationChannelGroup(NotificationChannelGroup(group.id, group.groupName))
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun NotificationManagerCompat.createNotificationChannel(
-        channel: AppNotificationChannel,
-        importance: Int = NotificationManager.IMPORTANCE_HIGH,
-        group: AppNotificationChannelGroup? = null
-    ) {
-        val mChannel = NotificationChannel(channel.id, channel.notificationChannelName, importance)
-        if (group != null) {
-            mChannel.group = group.id
+    private fun getNotificationChannelId(topicId: String?): String {
+        return if (topicId == null) {
+            DEFAULT_NOTIFICATION_CHANNEL
+        } else {
+            "$USER_NOTIFICATION_CHANNEL_PREFIX.$topicId"
         }
-        this.createNotificationChannel(mChannel)
-    }
-
-    private fun AppNotificationChannel.notificationBuilder(): NotificationCompat.Builder {
-        return NotificationCompat.Builder(App.context, this.id)
     }
 }
