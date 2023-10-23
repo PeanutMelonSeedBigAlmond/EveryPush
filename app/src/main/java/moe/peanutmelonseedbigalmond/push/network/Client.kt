@@ -67,10 +67,12 @@ class Client(baseUrl: String) {
         }
 
     suspend fun userLogin(fcmToken: String) = withContext(Dispatchers.IO) {
-        return@withContext doGraphqlQuery<UserLoginResponse>(
+        val data = doGraphqlQuery<JsonObject>(
             query = readQueryStatement("user_login"),
             variables = mapOf("firebaseToken" to fcmToken)
-        )
+        ).getAsJsonObject("login")
+
+        return@withContext gson.fromJson<UserLoginResponse>(data, UserLoginResponse::class.java)
     }
 
     suspend fun ping() = withContext(Dispatchers.IO) {
