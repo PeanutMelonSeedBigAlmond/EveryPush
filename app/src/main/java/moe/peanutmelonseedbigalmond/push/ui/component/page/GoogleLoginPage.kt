@@ -148,11 +148,11 @@ fun GoogleLoginPage() {
                 val credential =
                     globalViewModel.oneTapClient.getSignInCredentialFromIntent(result.data)
                 val token = credential.googleIdToken
-                loadingDialogShow = false
                 if (token != null) {
                     getFirebaseUserToken(token)
                 } else {
                     showMessageWithSnackBar(R.string.error_get_token_failed)
+                    loadingDialogShow = false
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
