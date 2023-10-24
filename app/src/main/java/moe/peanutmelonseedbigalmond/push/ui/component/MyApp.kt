@@ -21,7 +21,8 @@ import moe.peanutmelonseedbigalmond.push.ui.component.page.Page
 import moe.peanutmelonseedbigalmond.push.ui.component.page.TopicDetailPage
 import moe.peanutmelonseedbigalmond.push.ui.theme.MyAppTheme
 
-private const val topicDetailPageUri = "app://moe.peanutmelonseedbigalmond.push/pages/topicDetail"
+private const val topicDetailPageUri =
+    "app://moe.peanutmelonseedbigalmond.push/pages/topicDetail?topicId={topicId}"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,7 +81,7 @@ fun MyApp() {
                             }
                         )
                     ) {
-                        val topicId = it.arguments!!.getString(Page.TopicDetail.Args.TopicId)
+                        val topicId = it.arguments?.getString(Page.TopicDetail.Args.TopicId)
                         TopicDetailPage(topicId)
                     }
                 }
