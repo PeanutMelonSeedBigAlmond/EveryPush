@@ -58,7 +58,7 @@ class SelectableAndClickableTextView : AppCompatTextView {
                     Selection.removeSelection(buffer)
                 } else {
                     if (link.isNotEmpty()) {
-                        link[0].onClick(this@SelectableAndClickableTextView)
+                        link.firstOrNull()?.onClick(this@SelectableAndClickableTextView)
                     } else {
                         performClick()
                     }
@@ -94,5 +94,9 @@ class SelectableAndClickableTextView : AppCompatTextView {
                 super.onLongPress(e)
             }
         }
+    }
+
+    override fun setText(text: CharSequence?, type: BufferType?) {
+        super.setText(text, type)
     }
 }
