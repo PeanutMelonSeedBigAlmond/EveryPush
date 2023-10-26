@@ -11,7 +11,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
-import android.text.Spanned
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -163,8 +162,9 @@ object NotificationUtil {
 
     fun sendMarkdownTextNotification(
         title: String,
-        content: Spanned,
+        content: String,
         topicId: String?,
+        previewImage: Bitmap? = null,
         id: Int? = null,
         time: Long = System.currentTimeMillis()
     ): Int? {
@@ -193,21 +193,35 @@ object NotificationUtil {
         }
         val mChannelId = getNotificationChannelId(topicId)
         val notification = NotificationCompat.Builder(App.context, mChannelId)
-            .setStyle(
-                BigTextStyle()
-                    .bigText(content)
-            )
             .setContentText(content)
             .setContentTitle(title)
             .setWhen(time)
             .setSmallIcon(R.drawable.ic_notifications)
-            .setLargeIcon(
-                BitmapFactory.decodeResource(App.context.resources, R.drawable.ic_notifications)
-            )
             .setContentIntent(pendingIntent)
             .apply {
                 if (!SystemUtils.isNewerThanO()) {
                     priority = NotificationCompat.PRIORITY_HIGH
+                }
+            }
+            .apply {
+                if (previewImage != null) {
+                    setStyle(
+                        BigPictureStyle()
+                            .bigPicture(previewImage)
+                            .bigLargeIcon(null as Bitmap?)
+                    )
+                        .setLargeIcon(previewImage)
+                } else {
+                    setStyle(
+                        BigTextStyle()
+                            .bigText(content)
+                    )
+                        .setLargeIcon(
+                            BitmapFactory.decodeResource(
+                                App.context.resources,
+                                R.drawable.ic_notifications
+                            )
+                        )
                 }
             }
             .setAutoCancel(true)

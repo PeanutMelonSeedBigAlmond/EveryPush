@@ -1,8 +1,10 @@
 package moe.peanutmelonseedbigalmond.push.service
 
+import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
 import android.text.Spanned
 import android.util.Log
+import androidx.core.text.getSpans
 import coil.imageLoader
 import coil.request.ImageRequest
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -12,6 +14,7 @@ import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.ext.tables.TablePlugin
 import io.noties.markwon.ext.tasklist.TaskListPlugin
 import io.noties.markwon.html.HtmlPlugin
+import io.noties.markwon.image.AsyncDrawableSpan
 import io.noties.markwon.image.ImagesPlugin
 import io.noties.markwon.image.coil.CoilImagesPlugin
 import io.noties.markwon.linkify.LinkifyPlugin
@@ -93,7 +96,35 @@ class FCMMessagingService : FirebaseMessagingService(),
     }
 
     private fun sendMarkdownMessage(title: String, content: Spanned, channelId: String?): Int? {
-        return NotificationUtil.sendMarkdownTextNotification(title, content, channelId)
+        val contentStr = content.toString()
+        val firstImage = content.getSpans<AsyncDrawableSpan>(0, content.length).firstOrNull()
+        val notificationId =
+            NotificationUtil.sendMarkdownTextNotification(title, contentStr, channelId)
+        if (firstImage != null) {
+            val imageUrl = firstImage.drawable.destination
+            val imageRequest = ImageRequest.Builder(this)
+                .data(imageUrl)
+                .build()
+            launch {
+                try {
+                    val bitmap =
+                        withContext(Dispatchers.IO) { imageLoader.execute(imageRequest).drawable as BitmapDrawable? }
+                    if (bitmap != null) {
+                        NotificationUtil.sendMarkdownTextNotification(
+                            title,
+                            contentStr,
+                            channelId,
+                            bitmap.bitmap,
+                            notificationId,
+                        )
+                    }
+                } catch (e: Exception) {
+                    Log.w("TAG", "sendImageNotification: 下载通知图片失败")
+                    e.printStackTrace()
+                }
+            }
+        }
+        return notificationId
     }
 
     private fun sendImageNotification(title: String, imageUrl: String, channelId: String?) {
@@ -108,7 +139,7 @@ class FCMMessagingService : FirebaseMessagingService(),
                     withContext(Dispatchers.IO) { imageLoader.execute(imageRequest).drawable as BitmapDrawable? }
                 if (bitmap != null) {
                     NotificationUtil.sendNotificationWithImage(
-                        getString(R.string.title_default_notification),
+                        title,
                         bitmap.bitmap,
                         channelId,
                         notificationId
@@ -119,5 +150,20 @@ class FCMMessagingService : FirebaseMessagingService(),
                 e.printStackTrace()
             }
         }
+    }
+
+    override fun onCreate() {
+        Log.i("FCMMessagingService", "onCreate")
+        super.onCreate()
+    }
+
+    override fun onDestroy() {
+        Log.i("FCMMessagingService", "onDestroy")
+        super.onDestroy()
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        Log.i("FCMMessagingService", "onUnbind")
+        return super.onUnbind(intent)
     }
 }
