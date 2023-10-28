@@ -40,7 +40,6 @@ fun MyApp() {
     @Composable
     fun needLogin(): Boolean = globalViewModel.url.isBlank()
             || globalViewModel.token.isBlank()
-            || globalViewModel.tokenExpiredAt <= System.currentTimeMillis()
     //endregion
 
     MyAppTheme {

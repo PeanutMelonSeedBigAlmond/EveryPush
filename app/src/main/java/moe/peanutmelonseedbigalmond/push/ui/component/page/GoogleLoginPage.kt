@@ -79,7 +79,6 @@ fun GoogleLoginPage() {
             try {
                 val loginResponse = globalViewModel.client.userLogin(token)
                 globalViewModel.token = loginResponse.token
-                globalViewModel.tokenExpiredAt = loginResponse.expiredAt
                 globalViewModel.saveUserConfig()
                 navController.navigate(Page.Main.route) {
                     popUpTo(Page.Guide.route) {

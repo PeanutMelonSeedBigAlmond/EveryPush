@@ -82,7 +82,6 @@ fun SettingsPage() {
             onLogoutAction = {
                 val localClient = Client(globalViewModel.url)
                 localClient.token = globalViewModel.token
-                localClient.tokenExpiredAt = globalViewModel.tokenExpiredAt
                 deviceList
                     .filter { it.deviceId == AppConfigurationRepository.fcmPushToken }
                     .forEach {

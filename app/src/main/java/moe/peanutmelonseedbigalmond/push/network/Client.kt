@@ -27,9 +27,7 @@ import java.nio.charset.Charset
 import kotlin.reflect.KClass
 
 class Client(baseUrl: String) {
-    var tokenExpiredAt = 0L
     var token = ""
-        get() = if (tokenExpiredAt <= System.currentTimeMillis()) throw Exception("Token expired") else field
     private val client = OkHttpClient.Builder()
         .build()
     private var service = Retrofit.Builder()

@@ -37,14 +37,10 @@ class GlobalViewModel : ViewModel() {
     var token by Delegates.observable("") { _, _, newValue ->
         client.token = newValue
     }
-    var tokenExpiredAt by Delegates.observable(0L) { _, _, newValue ->
-        client.tokenExpiredAt = newValue
-    }
 
     fun clearUserConfig() {
         url = "http://localhost"
         token = ""
-        tokenExpiredAt = 0L
         saveUserConfig()
     }
 
@@ -54,7 +50,6 @@ class GlobalViewModel : ViewModel() {
     fun saveUserConfig() {
         AppConfigurationRepository.endpointUrl = url
         UserTokenRepository.token = token
-        UserTokenRepository.expiredAt = tokenExpiredAt
     }
 
     /**
@@ -63,7 +58,6 @@ class GlobalViewModel : ViewModel() {
     fun loadConfig() {
         url = AppConfigurationRepository.endpointUrl
         token = UserTokenRepository.token
-        tokenExpiredAt = UserTokenRepository.expiredAt
     }
 
     private fun updateAndSetupNotificationChannel(topicData: List<TopicData>) {
