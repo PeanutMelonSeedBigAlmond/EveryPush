@@ -136,7 +136,7 @@ private fun ImageMessageContent(content: String) {
     ) {
         when (painter.state) {
             is AsyncImagePainter.State.Loading -> {
-                CircularProgressIndicator()
+                CircularProgressIndicator(modifier = Modifier.wrapContentSize())
             }
 
             is AsyncImagePainter.State.Error -> {
@@ -291,7 +291,7 @@ fun BuildMarkdownImageGrid(imageList: List<String>) {
                             ) {
                                 when (painter.state) {
                                     is AsyncImagePainter.State.Loading -> {
-                                        CircularProgressIndicator()
+                                        CircularProgressIndicator(modifier = Modifier.wrapContentSize())
                                     }
 
                                     is AsyncImagePainter.State.Error -> {
