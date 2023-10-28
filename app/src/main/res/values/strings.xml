@@ -60,4 +60,8 @@
     <string name="tips_yesterday_datetime">Yesterday, %1$s</string>
     <string name="tips_today_datetime">Today, %1$s</string>
     <string name="tip_two_days_ago_datetime">2 days ago, %1$s</string>
+    <plurals name="notification_summary_title">
+        <item quantity="one">%d message</item>
+        <item quantity="other">%d messages</item>
+    </plurals>
 </resources>

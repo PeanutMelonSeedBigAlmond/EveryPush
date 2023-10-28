@@ -1,12 +1,13 @@
 package moe.peanutmelonseedbigalmond.push.service
 
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.BitmapDrawable
-import android.text.Spanned
 import android.util.Log
-import androidx.core.text.getSpans
+import androidx.core.os.persistableBundleOf
 import coil.imageLoader
-import coil.request.ImageRequest
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import io.noties.markwon.Markwon
@@ -14,22 +15,18 @@ import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.ext.tables.TablePlugin
 import io.noties.markwon.ext.tasklist.TaskListPlugin
 import io.noties.markwon.html.HtmlPlugin
-import io.noties.markwon.image.AsyncDrawableSpan
 import io.noties.markwon.image.ImagesPlugin
 import io.noties.markwon.image.coil.CoilImagesPlugin
 import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.simple.ext.SimpleExtPlugin
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import moe.peanutmelonseedbigalmond.push.App
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.repository.AppConfigurationRepository
 import moe.peanutmelonseedbigalmond.push.repository.UserTokenRepository
-import moe.peanutmelonseedbigalmond.push.utils.NotificationUtil
+import moe.peanutmelonseedbigalmond.push.utils.notification.NotificationUtil
+import kotlin.random.Random
 
-class FCMMessagingService : FirebaseMessagingService(),
-    CoroutineScope by CoroutineScope(Dispatchers.Main) {
+class FCMMessagingService : FirebaseMessagingService() {
     private val markwon by lazy {
         Markwon.builder(this)
             .usePlugin(StrikethroughPlugin.create())
@@ -67,7 +64,7 @@ class FCMMessagingService : FirebaseMessagingService(),
                 when (messageType) {
                     "text" -> sendTextNotification(title, messageText, topic)
                     "image" -> sendImageNotification(title, messageText, topic)
-                    "markdown" -> sendMarkdownMessage(title, markwon.toMarkdown(messageText), topic)
+                    "markdown" -> sendMarkdownMessage(title, messageText, topic)
                     else -> sendTextNotification(title, messageText, topic)
                 }
             } else {
@@ -95,61 +92,36 @@ class FCMMessagingService : FirebaseMessagingService(),
         return NotificationUtil.sendTextNotification(title, content, channelId)
     }
 
-    private fun sendMarkdownMessage(title: String, content: Spanned, channelId: String?): Int? {
-        val contentStr = content.toString()
-        val firstImage = content.getSpans<AsyncDrawableSpan>(0, content.length).firstOrNull()
-        val notificationId =
-            NotificationUtil.sendMarkdownTextNotification(title, contentStr, channelId)
-        if (firstImage != null) {
-            val imageUrl = firstImage.drawable.destination
-            val imageRequest = ImageRequest.Builder(this)
-                .data(imageUrl)
-                .build()
-            launch {
-                try {
-                    val bitmap =
-                        withContext(Dispatchers.IO) { imageLoader.execute(imageRequest).drawable as BitmapDrawable? }
-                    if (bitmap != null) {
-                        NotificationUtil.sendMarkdownTextNotification(
-                            title,
-                            contentStr,
-                            channelId,
-                            bitmap.bitmap,
-                            notificationId,
-                        )
-                    }
-                } catch (e: Exception) {
-                    Log.w("TAG", "sendImageNotification: 下载通知图片失败")
-                    e.printStackTrace()
-                }
-            }
-        }
-        return notificationId
+    private fun sendMarkdownMessage(title: String, content: String, channelId: String?) {
+        val jobService = App.context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        val componentName =
+            ComponentName(App.context, DownloadNotificationImageJobService::class.java)
+        val extras = persistableBundleOf(
+            "notificationChannelId" to channelId,
+            "notificationTitle" to title,
+            "notificationContent" to content,
+            "notificationType" to "markdown"
+        )
+        val job = JobInfo.Builder(Random.nextInt(1, Int.MAX_VALUE), componentName)
+            .setExtras(extras)
+            .build()
+        jobService.schedule(job)
     }
 
     private fun sendImageNotification(title: String, imageUrl: String, channelId: String?) {
-        val imageRequest = ImageRequest.Builder(this)
-            .data(imageUrl)
+        val jobService = App.context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        val componentName =
+            ComponentName(App.context, DownloadNotificationImageJobService::class.java)
+        val extras = persistableBundleOf(
+            "notificationChannelId" to channelId,
+            "notificationTitle" to title,
+            "notificationContent" to imageUrl,
+            "notificationType" to "image"
+        )
+        val job = JobInfo.Builder(Random.nextInt(1, Int.MAX_VALUE), componentName)
+            .setExtras(extras)
             .build()
-        launch {
-            val notificationId =
-                sendTextNotification(title, getString(R.string.image_notification_brief), channelId)
-            try {
-                val bitmap =
-                    withContext(Dispatchers.IO) { imageLoader.execute(imageRequest).drawable as BitmapDrawable? }
-                if (bitmap != null) {
-                    NotificationUtil.sendNotificationWithImage(
-                        title,
-                        bitmap.bitmap,
-                        channelId,
-                        notificationId
-                    )
-                }
-            } catch (e: Exception) {
-                Log.w("TAG", "sendImageNotification: 下载通知图片失败")
-                e.printStackTrace()
-            }
-        }
+        jobService.schedule(job)
     }
 
     override fun onCreate() {

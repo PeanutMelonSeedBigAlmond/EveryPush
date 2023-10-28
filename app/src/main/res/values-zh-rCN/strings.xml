@@ -58,4 +58,7 @@
     <string name="tips_yesterday_datetime">昨天 %1$s</string>
     <string name="tips_today_datetime">今天 %1$s</string>
     <string name="tip_two_days_ago_datetime">前天 %1$s</string>
+    <plurals name="notification_summary_title">
+        <item quantity="other">%d 条消息</item>
+    </plurals>
 </resources>

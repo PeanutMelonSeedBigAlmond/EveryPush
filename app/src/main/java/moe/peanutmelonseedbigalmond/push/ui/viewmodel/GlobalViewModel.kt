@@ -11,7 +11,7 @@ import moe.peanutmelonseedbigalmond.push.repository.UserTokenRepository
 import moe.peanutmelonseedbigalmond.push.ui.data.DeviceData
 import moe.peanutmelonseedbigalmond.push.ui.data.TokenData
 import moe.peanutmelonseedbigalmond.push.ui.data.TopicData
-import moe.peanutmelonseedbigalmond.push.utils.NotificationUtil
+import moe.peanutmelonseedbigalmond.push.utils.notification.NotificationUtil
 import kotlin.properties.Delegates
 
 class GlobalViewModel : ViewModel() {

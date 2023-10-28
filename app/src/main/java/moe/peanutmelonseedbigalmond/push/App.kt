@@ -16,6 +16,7 @@ import io.noties.markwon.image.ImagesPlugin
 import io.noties.markwon.image.coil.CoilImagesPlugin
 import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.simple.ext.SimpleExtPlugin
+import moe.peanutmelonseedbigalmond.push.utils.notification.NotificationHolder
 
 class App : Application(), ImageLoaderFactory {
     companion object {
@@ -35,6 +36,14 @@ class App : Application(), ImageLoaderFactory {
                 .usePlugin(SimpleExtPlugin.create())
                 .build()
         }
+
+        // 已经发送的通知
+        // 通知组id, 通知列表
+        val notifications = mutableMapOf<String, MutableList<NotificationHolder>>()
+
+        // 已发送的摘要消息
+        // 通知组id, id
+        val summaryNotifications = mutableMapOf<String, Int>()
     }
 
     override fun onCreate() {

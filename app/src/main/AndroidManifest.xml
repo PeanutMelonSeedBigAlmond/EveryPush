@@ -43,13 +43,18 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <service
+            android:name=".service.DownloadNotificationImageJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_launcher_foreground" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/black" />
+        <receiver
+            android:name=".receiver.NotificationDismissBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="moe.peanutmelonseedbigalmond.push.action.NOTIFICATION_DELETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

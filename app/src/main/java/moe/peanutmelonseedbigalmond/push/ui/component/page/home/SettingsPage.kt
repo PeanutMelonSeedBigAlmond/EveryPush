@@ -43,7 +43,7 @@ import moe.peanutmelonseedbigalmond.push.ui.component.page.Page
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.MenuPreferences
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.PreferenceGroup
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.TextPreferences
-import moe.peanutmelonseedbigalmond.push.utils.NotificationUtil
+import moe.peanutmelonseedbigalmond.push.utils.notification.NotificationUtil
 
 @Composable
 fun SettingsPage() {

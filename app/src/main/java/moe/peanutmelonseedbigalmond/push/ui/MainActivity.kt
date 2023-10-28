@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import moe.peanutmelonseedbigalmond.push.App
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.repository.AppConfigurationRepository
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalActivity
@@ -28,7 +29,7 @@ import moe.peanutmelonseedbigalmond.push.ui.component.LocalActivityCoroutineScop
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
 import moe.peanutmelonseedbigalmond.push.ui.component.MyApp
 import moe.peanutmelonseedbigalmond.push.ui.viewmodel.GlobalViewModel
-import moe.peanutmelonseedbigalmond.push.utils.NotificationUtil
+import moe.peanutmelonseedbigalmond.push.utils.notification.NotificationUtil
 
 class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispatchers.Main) {
     private lateinit var viewModel: GlobalViewModel
@@ -89,6 +90,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispa
     override fun onResume() {
         super.onResume()
         askNotificationPermission()
+        App.summaryNotifications.keys.forEach {
+            NotificationUtil.cancelNotificationSummary(it)
+        }
     }
 
     private fun askNotificationPermission() {
