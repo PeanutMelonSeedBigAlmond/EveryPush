@@ -81,7 +81,7 @@ fun TopicDetailPage(topicId: String?) {
         isRefreshing = true
         try {
             val topicDetail = globalViewModel.client.topicDetail(topicId)
-            subTitle = topicDetail.name ?: "未分类的消息"
+            subTitle = topicDetail.name ?: context.getString(R.string.title_default_notification)
             messages = topicDetail.messages.map {
                 return@map MessageData(it.type, it.title, it.text, it.id, it.sendAt)
             }
