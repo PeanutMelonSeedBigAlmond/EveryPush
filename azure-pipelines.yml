@@ -44,6 +44,7 @@ steps:
     gradleWrapperFile: 'gradlew'
     tasks: 'assembleRelease'
     publishJUnitResults: false
+    jdkVersionOption: '1.17'
     javaHomeOption: 'JDKVersion'
     gradleOptions: '-Xmx3072m'
     sonarQubeRunAnalysis: false
