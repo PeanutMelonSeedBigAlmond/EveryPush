@@ -289,6 +289,13 @@ object NotificationUtil {
             )
             .applyCommonOptions()
             .setStyle(NotificationCompat.InboxStyle()
+                .setSummaryText(
+                    App.context.resources.getQuantityString(
+                        R.plurals.notification_summary_title,
+                        notificationGroupContentList.size,
+                        notificationGroupContentList.size
+                    )
+                )
                 .also { style ->
                     notificationGroupContentList.forEach {
                         style.addLine(it)
