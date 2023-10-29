@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import moe.peanutmelonseedbigalmond.push.App
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.getWidgetSurfaceColor
 import moe.peanutmelonseedbigalmond.push.ui.data.TopicData
@@ -70,8 +71,12 @@ fun TopicItem(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = data.latestMessage?.content ?: "",
-                maxLines = 2,
+                text = if (data.latestMessage?.content != null)
+                    App.markwon.toMarkdown(data.latestMessage.content).toString()
+                else
+                    "",
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 1,
                 style = MaterialTheme.typography.bodyMedium
             )
         }

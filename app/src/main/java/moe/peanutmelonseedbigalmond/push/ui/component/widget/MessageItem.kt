@@ -7,7 +7,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -42,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImagePainter
@@ -66,21 +69,35 @@ fun MessageItem(messageData: MessageData, onDeleteAction: (MessageData) -> Unit)
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = if (messageData.title.isNotBlank()) {
-                    "${messageData.title} · ${
-                        DatetimeUtils.getDateString(
-                            context,
-                            messageData.sendTime
-                        )
-                    }"
-                } else {
-                    DatetimeUtils.getDateString(context, messageData.sendTime)
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
+                Text(
+                    text =
+                    DatetimeUtils.getDateString(
+                        context,
+                        messageData.sendTime
+                    )
+                )
+                if (messageData.title.isNotBlank()) {
+                    Text(
+                        text = " · ${messageData.title}",
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
-            )
+            }
+
             MoreOptionsMenu {
                 onDeleteAction(messageData)
             }
@@ -242,7 +259,7 @@ private fun MoreOptionsMenu(
     onDeleteAction: () -> Unit,
 ) {
     var dropDownMenuVisible by remember { mutableStateOf(false) }
-    Box(modifier = Modifier.wrapContentSize()) {
+    Box(modifier = Modifier.fillMaxHeight()) {
         IconButton(onClick = { dropDownMenuVisible = true }, modifier = Modifier.size(24.dp)) {
             Icon(
                 imageVector = Icons.Filled.MoreVert,
