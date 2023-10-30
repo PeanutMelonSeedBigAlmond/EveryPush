@@ -74,29 +74,26 @@ fun MessageItem(messageData: MessageData, onDeleteAction: (MessageData) -> Unit)
                 .height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-            ) {
                 Text(
-                    text =
-                    DatetimeUtils.getDateString(
-                        context,
-                        messageData.sendTime
-                    )
+                    text = if (messageData.title.isNotBlank()) {
+                        "${
+                            DatetimeUtils.getDateString(
+                                context,
+                                messageData.sendTime
+                            )
+                        } · ${messageData.title}"
+                    } else {
+                        DatetimeUtils.getDateString(
+                            context,
+                            messageData.sendTime
+                        )
+                    },
+                    maxLines = 1,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .weight(1f),
+                    overflow = TextOverflow.Ellipsis
                 )
-                if (messageData.title.isNotBlank()) {
-                    Text(
-                        text = " · ${messageData.title}",
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
 
             MoreOptionsMenu {
                 onDeleteAction(messageData)

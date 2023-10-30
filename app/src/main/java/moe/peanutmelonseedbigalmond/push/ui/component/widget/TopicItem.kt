@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import moe.peanutmelonseedbigalmond.push.App
 import moe.peanutmelonseedbigalmond.push.R
@@ -71,13 +72,17 @@ fun TopicItem(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = if (data.latestMessage?.content != null)
+                text = if (data.latestMessage?.title?.isNotBlank() == true) {
+                    data.latestMessage.title
+                } else if (data.latestMessage?.content?.isNotBlank() == true) {
                     App.markwon.toMarkdown(data.latestMessage.content).toString()
-                else
-                    "",
+                } else {
+                    ""
+                }.replace(Regex("[\\s\\n]+"), " "),
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                overflow = TextOverflow.Ellipsis
             )
         }
 
