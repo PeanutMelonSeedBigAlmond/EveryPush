@@ -104,6 +104,7 @@ class FCMMessagingService : FirebaseMessagingService() {
         )
         val job = JobInfo.Builder(Random.nextInt(1, Int.MAX_VALUE), componentName)
             .setExtras(extras)
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             .build()
         jobService.schedule(job)
     }
@@ -120,6 +121,7 @@ class FCMMessagingService : FirebaseMessagingService() {
         )
         val job = JobInfo.Builder(Random.nextInt(1, Int.MAX_VALUE), componentName)
             .setExtras(extras)
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             .build()
         jobService.schedule(job)
     }
