@@ -61,4 +61,7 @@
     <plurals name="notification_summary_title">
         <item quantity="other">%d 条消息</item>
     </plurals>
+    <plurals name="tip_image_count">
+        <item quantity="other">%1$d 图</item>
+    </plurals>
 </resources>

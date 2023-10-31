@@ -141,7 +141,7 @@ fun TopicDetailPage(topicId: String?) {
                 title = {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(text = stringResource(id = R.string.title_topic_detail))
-                        if (!subTitle.isNullOrBlank()) {
+                        if (subTitle?.isNotBlank() == true) {
                             Text(
                                 text = subTitle!!,
                                 style = MaterialTheme.typography.titleSmall,
