@@ -1,6 +1,5 @@
 package moe.peanutmelonseedbigalmond.push.ui.component.widget
 
-import android.text.Spanned
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,18 +11,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -54,29 +49,34 @@ import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import moe.peanutmelonseedbigalmond.push.App
 import moe.peanutmelonseedbigalmond.push.R
+import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.getWidgetSurfaceColor
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.view.SelectableAndClickableTextView
 import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
 import moe.peanutmelonseedbigalmond.push.utils.SpanUtils
 
 @Composable
 fun MessageItem(messageData: MessageData, onDeleteAction: (MessageData) -> Unit) {
+    var showDetailDialog by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight(),
+            .wrapContentHeight()
+            .clickable { showDetailDialog = true },
+        colors = CardDefaults.cardColors(containerColor = getWidgetSurfaceColor(elevation = 2.dp)),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp,
+            pressedElevation = 2.dp,
+            focusedElevation = 1.dp,
+        )
     ) {
         Column {
             Box {
                 when (messageData.type) {
-                    MessageData.Type.TEXT -> {
-                        TextContent(title = messageData.title, content = messageData.content)
-                    }
-
                     MessageData.Type.IMAGE -> {
                         ImageWithTextContent(
                             title = null,
                             content = messageData.title,
-                            imageUrls = listOf(messageData.content)
+                            imageUrls = listOf(messageData.content),
                         )
                     }
 
@@ -85,12 +85,16 @@ fun MessageItem(messageData: MessageData, onDeleteAction: (MessageData) -> Unit)
                         ImageWithTextContent(
                             title = messageData.title,
                             content = spanned,
-                            imageUrls = SpanUtils.findImageUrlFromSpan(spanned)
+                            imageUrls = SpanUtils.findImageUrlFromSpan(spanned),
                         )
                     }
 
-                    else -> {
-                        TextContent(title = messageData.title, content = messageData.content)
+                    else -> { //text and else
+                        TextContent(
+                            title = messageData.title,
+                            content = messageData.content,
+                            modifier = Modifier.padding(8.dp)
+                        )
                     }
                 }
             }
@@ -107,44 +111,11 @@ fun MessageItem(messageData: MessageData, onDeleteAction: (MessageData) -> Unit)
             }
         }
     }
-}
-
-@Composable
-fun TextContent(title: String?, content: CharSequence) {
-    var showDetailDialog by remember { mutableStateOf(false) }
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth()
-            .clickable {
-                showDetailDialog = true
-            }
-    ) {
-        if (title != null) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        SelectionContainer(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = content.toString(),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
     if (showDetailDialog) {
         MyAlertDialog(
-            title = { if (title != null) Text(text = title) },
+            title = { Text(text = messageData.title) },
             content = {
-                SelectionContainer {
-                    Text(text = content.toString())
-                }
+                DetailDialogBody(messageData = messageData)
             },
             dismissButton = {
                 TextButton(onClick = { showDetailDialog = false }) {
@@ -158,60 +129,67 @@ fun TextContent(title: String?, content: CharSequence) {
 }
 
 @Composable
-private fun ImageWithTextContent(title: String?, content: CharSequence, imageUrls: List<String>) {
-    var showDetailDialog by remember { mutableStateOf(false) }
+private fun TextContent(
+    title: String?,
+    content: CharSequence?,
+    modifier: Modifier = Modifier,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.clickable {
-            showDetailDialog = true
+        modifier = modifier
+    ) {
+        if (title != null) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
+        if (content != null) {
+            Text(
+                text = content.toString(),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun ImageWithTextContent(
+    title: String?,
+    content: CharSequence?,
+    imageUrls: List<String>,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier
     ) {
         ImagePreviewWidget(imageList = imageUrls)
-        TextContent(title = title, content = content)
+        TextContent(title = title, content = content, modifier = Modifier.padding(8.dp))
     }
-    if (showDetailDialog) {
-        MyAlertDialog(
-            title = { if (title != null) Text(text = title) },
-            content = {
-                if (content is Spanned) {
-                    AndroidView(
-                        factory = {
-                            SelectableAndClickableTextView(it).also {
-                                it.setTextIsSelectable(
-                                    true
-                                )
-                            }
-                        }, modifier = Modifier
-                            .fillMaxWidth()
-                            .sizeIn(maxHeight = 640.dp)
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        App.markwon.setParsedMarkdown(it, content)
-                    }
-                } else {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        itemsIndexed(
-                            items = imageUrls, key = { index, _ -> index }
-                        ) { _, item ->
-                            ImageWidget(imageUrl = item)
-                        }
-                        item {
-                            SelectionContainer {
-                                Text(text = content.toString())
-                            }
-                        }
-                    }
-                }
-            },
-            dismissButton = { },
-            confirmButton = {
-                TextButton(onClick = { showDetailDialog = false }) {
-                    Text(text = stringResource(id = R.string.confirm))
-                }
-            }) {
-            showDetailDialog = false
+}
+
+@Composable
+private fun DetailDialogBody(
+    messageData: MessageData,
+) {
+    if (messageData.type == MessageData.Type.IMAGE) {
+        ImageWidget(imageUrl = messageData.content)
+    } else if (messageData.type == MessageData.Type.MARKDOWN) {
+        AndroidView(factory = {
+            SelectableAndClickableTextView(it).also {
+                it.setTextIsSelectable(true)
+            }
+        }) {
+            App.markwon.setMarkdown(it, messageData.content)
+        }
+    } else { // text and else
+        SelectionContainer {
+            Text(text = messageData.content)
         }
     }
 }
@@ -284,7 +262,7 @@ private fun ImageWidget(imageUrl: String) {
 }
 
 @Composable
-fun ImagePreviewWidget(imageList: List<String>) {
+private fun ImagePreviewWidget(imageList: List<String>) {
     if (imageList.isEmpty()) return
     Box {
         ImageWidget(imageUrl = imageList[0])
