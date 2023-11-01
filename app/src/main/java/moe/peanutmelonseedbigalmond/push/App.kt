@@ -7,6 +7,9 @@ import android.util.Log
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.imageLoader
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.crashlytics.ktx.setCustomKeys
+import com.google.firebase.ktx.Firebase
 import io.noties.markwon.Markwon
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.ext.tables.TablePlugin
@@ -50,6 +53,10 @@ class App : Application(), ImageLoaderFactory {
         Log.i("App", "onCreate")
         super.onCreate()
         context = applicationContext
+        Firebase.crashlytics.setCustomKeys {
+            key("isDebug", BuildConfig.DEBUG)
+            key("buildType", BuildConfig.BUILD_TYPE)
+        }
     }
 
     override fun onTrimMemory(level: Int) {
