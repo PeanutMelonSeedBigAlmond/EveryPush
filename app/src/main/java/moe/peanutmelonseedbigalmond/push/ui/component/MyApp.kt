@@ -17,12 +17,17 @@ import com.google.accompanist.insets.statusBarsPadding
 import moe.peanutmelonseedbigalmond.push.ui.component.page.ConfigureServerPage
 import moe.peanutmelonseedbigalmond.push.ui.component.page.GoogleLoginPage
 import moe.peanutmelonseedbigalmond.push.ui.component.page.HomePage
+import moe.peanutmelonseedbigalmond.push.ui.component.page.MessageDetailPage
 import moe.peanutmelonseedbigalmond.push.ui.component.page.Page
 import moe.peanutmelonseedbigalmond.push.ui.component.page.TopicDetailPage
+import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
 import moe.peanutmelonseedbigalmond.push.ui.theme.MyAppTheme
 
 private const val topicDetailPageUri =
     "app://moe.peanutmelonseedbigalmond.push/pages/topicDetail?topicId={topicId}"
+
+private const val messageDetailPageUri =
+    "app://moe.peanutmelonseedbigalmond.push/pages/messageDetail?messageBody={messageBody}?messageId={messageId}"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,6 +87,26 @@ fun MyApp() {
                     ) {
                         val topicId = it.arguments?.getString(Page.TopicDetail.Args.TopicId)
                         TopicDetailPage(topicId)
+                    }
+                    composable(
+                        route = Page.MessageDetail.route,
+                        arguments = listOf(navArgument("messageBody") {
+                            type = NavType.ParcelableType(MessageData::class.java)
+                            defaultValue = null
+                            nullable = true
+                        }, navArgument("messageId") {
+                            type = NavType.LongType
+                            defaultValue = -1
+                            nullable = false
+                        }),
+                        deepLinks = listOf(navDeepLink {
+                            uriPattern = messageDetailPageUri
+                        })
+                    ) {
+                        val messageId = it.arguments?.getLong("messageId", -1) ?: -1
+                        val messageType =
+                            it.arguments?.getParcelable("messageBody") as MessageData?
+                        MessageDetailPage(messageId = messageId, messageBody = messageType)
                     }
                 }
             }

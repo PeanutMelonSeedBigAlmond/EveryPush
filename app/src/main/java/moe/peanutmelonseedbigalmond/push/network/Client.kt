@@ -268,6 +268,17 @@ class Client(baseUrl: String) {
         ).getAsJsonObject("topic")
     }
 
+    suspend fun queryMessage(id: Long) = withContext(Dispatchers.IO) {
+        doGraphqlQuery<JsonObject>(
+            readQueryStatement("query_message"),
+            variables = mapOf(
+                "id" to id,
+                "token" to token,
+            )
+        ).getAsJsonObject("message")
+            .toObject(MessageResponse::class)
+    }
+
     private fun readQueryStatement(name: String): String {
         return App.context.assets.open("graphql/$name.graphql.query").use {
             return@use it.readBytes().toString(Charset.defaultCharset())

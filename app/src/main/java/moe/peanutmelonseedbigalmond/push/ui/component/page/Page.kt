@@ -21,6 +21,13 @@ sealed class Page(val route: String) {
 
     object Message : Page("Message")
 
+    object MessageDetail : Page("MessageDetail?messageBody={messageBody}&messageId={messageId}") {
+        object Args {
+            const val MessageBody = "messageBody"
+            const val MessageId = "messageId"
+        }
+    }
+
     object MainPage {
         object Device : Page("Device")
         object Keys : Page("Keys")

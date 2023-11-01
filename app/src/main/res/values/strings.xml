@@ -68,4 +68,5 @@
         <item quantity="one">%1$d pic</item>
         <item quantity="other">%1$d pics</item>
     </plurals>
+    <string name="title_message_detail">Message Detail</string>
 </resources>

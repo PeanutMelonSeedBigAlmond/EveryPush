@@ -64,4 +64,5 @@
     <plurals name="tip_image_count">
         <item quantity="other">%1$d 图</item>
     </plurals>
+    <string name="title_message_detail">消息详情</string>
 </resources>

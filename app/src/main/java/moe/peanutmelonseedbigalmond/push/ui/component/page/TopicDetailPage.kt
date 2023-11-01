@@ -40,11 +40,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalAppNavHostController
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
+import moe.peanutmelonseedbigalmond.push.ui.component.extension.navigate
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.MessageItem
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.MyAlertDialog
 import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
@@ -200,7 +202,12 @@ fun TopicDetailPage(topicId: String?) {
                             coroutineScope.launch {
                                 deleteMessage(it.id)
                             }
-                        })
+                        }) {
+                            navController.navigate(
+                                route = Page.MessageDetail.route,
+                                args = bundleOf(Page.MessageDetail.Args.MessageBody to it)
+                            )
+                        }
                     }
                 }
             }
