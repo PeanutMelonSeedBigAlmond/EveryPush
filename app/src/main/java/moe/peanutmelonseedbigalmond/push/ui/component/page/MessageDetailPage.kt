@@ -114,8 +114,13 @@ fun MessageDetailPage(messageId: Long, messageBody: MessageData?) {
             TopAppBar(
                 title = {
                     AnimatedContent(targetState = showTitleOnAppBar, label = "", transitionSpec = {
-                        (slideInVertically { it } + fadeIn())
-                            .togetherWith(slideOutVertically { -it } + fadeOut())
+                        if (showTitleOnAppBar) {
+                            (slideInVertically { it } + fadeIn())
+                                .togetherWith(slideOutVertically { -it } + fadeOut())
+                        } else {
+                            (slideInVertically { -it } + fadeIn())
+                                .togetherWith(slideOutVertically { it } + fadeOut())
+                        }
                     }) {
                         Text(
                             text = if (body?.title?.isNotEmpty() == true && it) {
