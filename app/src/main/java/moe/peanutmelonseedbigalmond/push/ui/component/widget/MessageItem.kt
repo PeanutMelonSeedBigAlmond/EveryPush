@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +40,7 @@ import moe.peanutmelonseedbigalmond.push.App
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.getWidgetSurfaceColor
 import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
+import moe.peanutmelonseedbigalmond.push.utils.DatetimeUtils
 import moe.peanutmelonseedbigalmond.push.utils.SpanUtils
 
 @Composable
@@ -67,6 +69,7 @@ fun MessageItem(
                             title = null,
                             content = messageData.title,
                             imageUrls = listOf(messageData.content),
+                            time = messageData.sendTime,
                         )
                     }
 
@@ -76,6 +79,7 @@ fun MessageItem(
                             title = messageData.title,
                             content = spanned,
                             imageUrls = SpanUtils.findImageUrlFromSpan(spanned),
+                            time = messageData.sendTime
                         )
                     }
 
@@ -83,7 +87,8 @@ fun MessageItem(
                         TextContent(
                             title = messageData.title,
                             content = messageData.content,
-                            modifier = Modifier.padding(8.dp)
+                            modifier = Modifier.padding(8.dp),
+                            time = messageData.sendTime,
                         )
                     }
                 }
@@ -107,6 +112,7 @@ fun MessageItem(
 private fun TextContent(
     title: String?,
     content: CharSequence?,
+    time: Long,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -114,20 +120,54 @@ private fun TextContent(
         modifier = modifier
     ) {
         if (title?.isNotBlank() == true) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
+                Text(
+                    text = DatetimeUtils.getDateString(LocalContext.current, time),
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
+
         if (content != null) {
-            Text(
-                text = content.toString(),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = content.toString(),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
+                if (title == null) {
+                    Text(
+                        text = DatetimeUtils.getDateString(LocalContext.current, time),
+                        modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            }
         }
     }
 }
@@ -136,6 +176,7 @@ private fun TextContent(
 private fun ImageWithTextContent(
     title: String?,
     content: CharSequence?,
+    time: Long,
     imageUrls: List<String>,
     modifier: Modifier = Modifier
 ) {
@@ -144,7 +185,12 @@ private fun ImageWithTextContent(
         modifier = modifier
     ) {
         ImagePreviewWidget(imageList = imageUrls)
-        TextContent(title = title, content = content, modifier = Modifier.padding(8.dp))
+        TextContent(
+            title = title,
+            content = content,
+            modifier = Modifier.padding(8.dp),
+            time = time
+        )
     }
 }
 
