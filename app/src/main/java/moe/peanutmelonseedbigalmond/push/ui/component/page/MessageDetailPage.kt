@@ -147,11 +147,13 @@ fun MessageDetailPage(messageId: Long, messageBody: MessageData?) {
         ) {
             LazyColumn(state = lazyListState, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (body != null) {
-                    item {
-                        DetailBodyTitle(
-                            content = body!!.title,
-                            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
-                        )
+                    if (body?.title?.isNotBlank() == true) {
+                        item {
+                            DetailBodyTitle(
+                                content = body!!.title,
+                                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+                            )
+                        }
                     }
                     item {
                         DetailBody(messageData = body!!)
@@ -171,7 +173,7 @@ fun MessageDetailPage(messageId: Long, messageBody: MessageData?) {
             .map { it == 0 }
             .distinctUntilChanged()
             .collect {
-                showTitleOnAppBar = !it
+                showTitleOnAppBar = !it && (body?.title?.isNotBlank() == true)
             }
     }
 }

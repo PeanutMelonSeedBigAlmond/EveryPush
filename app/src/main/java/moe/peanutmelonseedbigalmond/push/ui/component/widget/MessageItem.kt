@@ -113,7 +113,7 @@ private fun TextContent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
     ) {
-        if (title != null) {
+        if (title?.isNotBlank() == true) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
