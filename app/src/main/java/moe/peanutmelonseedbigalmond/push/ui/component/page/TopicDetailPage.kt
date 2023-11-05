@@ -1,6 +1,7 @@
 package moe.peanutmelonseedbigalmond.push.ui.component.page
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -143,12 +144,14 @@ fun TopicDetailPage(topicId: String?) {
                 title = {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(text = stringResource(id = R.string.title_topic_detail))
-                        if (subTitle?.isNotBlank() == true) {
-                            Text(
-                                text = subTitle!!,
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
+                        AnimatedVisibility(visible = subTitle?.isNotBlank() == true) {
+                            if (subTitle?.isNotBlank() == true) {
+                                Text(
+                                    text = subTitle!!,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
                         }
                     }
                 },
