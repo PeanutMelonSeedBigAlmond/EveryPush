@@ -1,10 +1,18 @@
 package moe.peanutmelonseedbigalmond.push.ui.component.page
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.ExperimentalMaterialApi
@@ -16,6 +24,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -28,13 +37,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import moe.peanutmelonseedbigalmond.push.App
 import moe.peanutmelonseedbigalmond.push.R
@@ -55,6 +68,9 @@ fun MessageDetailPage(messageId: Long, messageBody: MessageData?) {
     val coroutineScope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
     var isRefreshing by remember { mutableStateOf(false) }
+    var showTitleOnAppBar by remember { mutableStateOf(false) }
+    val lazyListState = rememberLazyListState()
+
 
     fun showMessage(msg: String) {
         coroutineScope.launch {
@@ -97,14 +113,20 @@ fun MessageDetailPage(messageId: Long, messageBody: MessageData?) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = if (body?.title?.isNotEmpty() == true) {
-                            body?.title!!
-                        } else {
-                            stringResource(id = R.string.title_message_detail)
-                        },
-                        maxLines = 1
-                    )
+                    AnimatedContent(targetState = showTitleOnAppBar, label = "", transitionSpec = {
+                        (slideInVertically { it } + fadeIn())
+                            .togetherWith(slideOutVertically { -it } + fadeOut())
+                    }) {
+                        Text(
+                            text = if (body?.title?.isNotEmpty() == true && it) {
+                                body?.title!!
+                            } else {
+                                stringResource(id = R.string.title_message_detail)
+                            },
+                            maxLines = 1,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -123,8 +145,14 @@ fun MessageDetailPage(messageId: Long, messageBody: MessageData?) {
                 .fillMaxSize()
                 .pullRefresh(refreshState)
         ) {
-            LazyColumn {
+            LazyColumn(state = lazyListState, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (body != null) {
+                    item {
+                        DetailBodyTitle(
+                            content = body!!.title,
+                            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+                        )
+                    }
                     item {
                         DetailBody(messageData = body!!)
                     }
@@ -136,6 +164,15 @@ fun MessageDetailPage(messageId: Long, messageBody: MessageData?) {
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         }
+    }
+
+    LaunchedEffect(key1 = lazyListState) {
+        snapshotFlow { lazyListState.firstVisibleItemIndex }
+            .map { it == 0 }
+            .distinctUntilChanged()
+            .collect {
+                showTitleOnAppBar = !it
+            }
     }
 }
 
@@ -165,4 +202,18 @@ private fun DetailBody(
             Text(text = messageData.content, modifier = Modifier.fillMaxWidth())
         }
     }
+}
+
+@Composable
+private fun DetailBodyTitle(
+    content: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = content,
+        style = MaterialTheme.typography.titleLarge,
+        maxLines = 2,
+        modifier = modifier,
+        overflow = TextOverflow.Ellipsis
+    )
 }
