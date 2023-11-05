@@ -24,15 +24,15 @@ class DownloadNotificationImageJobService : JobService(),
         if (params == null) return false
 
         val extra = params.extras
-        val title = extra.getString("notificationTitle")
-        val content = extra.getString("notificationContent")
-        val type = extra.getString("notificationType")
-        if (title == null || content == null || type == null) return false
+        val title = extra.getString("notificationTitle") ?: return false
+        val content = extra.getString("notificationContent") ?: return false
+        val type = extra.getString("notificationType") ?: return false
+        val messageId = extra.getString("messageId") ?: return false
 
         val channelId = extra.getString("notificationChannelId")
         when (type) {
-            "image" -> sendImageNotification(params, title, content, channelId)
-            "markdown" -> sendMarkdownMessage(params, title, content, channelId)
+            "image" -> sendImageNotification(params, title, content, channelId, messageId)
+            "markdown" -> sendMarkdownMessage(params, title, content, channelId, messageId)
             else -> return false
         }
         return true
@@ -51,11 +51,12 @@ class DownloadNotificationImageJobService : JobService(),
         jobParams: JobParameters,
         title: String,
         content: String,
-        channelId: String?
+        channelId: String?,
+        messageId: String,
     ) {
         val spanned = App.markwon.toMarkdown(content)
         val firstImageUrl = SpanUtils.findImageUrlFromSpan(spanned).firstOrNull()
-        val notificationId = sendTextNotification(title, spanned, channelId)
+        val notificationId = sendTextNotification(title, spanned, channelId, messageId)
         if (firstImageUrl != null) {
             val imageRequest = ImageRequest.Builder(this)
                 .data(firstImageUrl)
@@ -73,6 +74,7 @@ class DownloadNotificationImageJobService : JobService(),
                             channelId,
                             bitmap.bitmap,
                             notificationId,
+                            messageId
                         )
                     }
                 } catch (e: Exception) {
@@ -89,14 +91,20 @@ class DownloadNotificationImageJobService : JobService(),
         jobParams: JobParameters,
         title: String,
         imageUrl: String,
-        channelId: String?
+        channelId: String?,
+        messageId: String,
     ) {
         launch {
             val imageRequest = ImageRequest.Builder(App.context)
                 .data(imageUrl)
                 .build()
             val notificationId =
-                sendTextNotification(title, getString(R.string.image_notification_brief), channelId)
+                sendTextNotification(
+                    title,
+                    getString(R.string.image_notification_brief),
+                    channelId,
+                    messageId
+                )
             try {
                 val bitmap =
                     withContext(Dispatchers.IO) { imageLoader.execute(imageRequest).drawable as BitmapDrawable? }
@@ -105,7 +113,8 @@ class DownloadNotificationImageJobService : JobService(),
                         title,
                         bitmap.bitmap,
                         channelId,
-                        notificationId
+                        notificationId,
+                        messageId
                     )
                 }
             } catch (e: Exception) {

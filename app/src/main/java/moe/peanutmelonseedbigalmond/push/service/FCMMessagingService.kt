@@ -48,6 +48,7 @@ class FCMMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(message)
         if (UserTokenRepository.token.isBlank()) return // 非登录态
 
+        val messageId = message.messageId!!
         val messageData = message.data
         val command = messageData["command"]?.toIntOrNull()
         val title = messageData["title"] ?: getString(R.string.title_default_notification)
@@ -62,10 +63,10 @@ class FCMMessagingService : FirebaseMessagingService() {
                     NotificationUtil.setupNotificationChannel(topic, topicName)
                 }
                 when (messageType) {
-                    "text" -> sendTextNotification(title, messageText, topic)
-                    "image" -> sendImageNotification(title, messageText, topic)
-                    "markdown" -> sendMarkdownMessage(title, messageText, topic)
-                    else -> sendTextNotification(title, messageText, topic)
+                    "text" -> sendTextNotification(title, messageText, topic, messageId)
+                    "image" -> sendImageNotification(title, messageText, topic, messageId)
+                    "markdown" -> sendMarkdownMessage(title, messageText, topic, messageId)
+                    else -> sendTextNotification(title, messageText, topic, messageId)
                 }
             } else {
                 Log.w("FCMMessagingService", "onMessageReceived: message body is null")
@@ -88,11 +89,21 @@ class FCMMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun sendTextNotification(title: String, content: String, channelId: String?): Int? {
-        return NotificationUtil.sendTextNotification(title, content, channelId)
+    private fun sendTextNotification(
+        title: String,
+        content: String,
+        channelId: String?,
+        messageId: String
+    ): Int? {
+        return NotificationUtil.sendTextNotification(title, content, channelId, messageId)
     }
 
-    private fun sendMarkdownMessage(title: String, content: String, channelId: String?) {
+    private fun sendMarkdownMessage(
+        title: String,
+        content: String,
+        channelId: String?,
+        messageId: String
+    ) {
         val jobService = App.context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         val componentName =
             ComponentName(App.context, DownloadNotificationImageJobService::class.java)
@@ -100,7 +111,8 @@ class FCMMessagingService : FirebaseMessagingService() {
             "notificationChannelId" to channelId,
             "notificationTitle" to title,
             "notificationContent" to content,
-            "notificationType" to "markdown"
+            "notificationType" to "markdown",
+            "messageId" to messageId,
         )
         val job = JobInfo.Builder(Random.nextInt(1, Int.MAX_VALUE), componentName)
             .setExtras(extras)
@@ -109,7 +121,12 @@ class FCMMessagingService : FirebaseMessagingService() {
         jobService.schedule(job)
     }
 
-    private fun sendImageNotification(title: String, imageUrl: String, channelId: String?) {
+    private fun sendImageNotification(
+        title: String,
+        imageUrl: String,
+        channelId: String?,
+        messageId: String
+    ) {
         val jobService = App.context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         val componentName =
             ComponentName(App.context, DownloadNotificationImageJobService::class.java)
@@ -117,7 +134,8 @@ class FCMMessagingService : FirebaseMessagingService() {
             "notificationChannelId" to channelId,
             "notificationTitle" to title,
             "notificationContent" to imageUrl,
-            "notificationType" to "image"
+            "notificationType" to "image",
+            "messageId" to messageId,
         )
         val job = JobInfo.Builder(Random.nextInt(1, Int.MAX_VALUE), componentName)
             .setExtras(extras)

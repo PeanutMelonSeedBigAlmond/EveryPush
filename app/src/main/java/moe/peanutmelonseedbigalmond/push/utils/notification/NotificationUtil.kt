@@ -24,8 +24,8 @@ import moe.peanutmelonseedbigalmond.push.utils.SystemUtils
 import kotlin.random.Random
 
 object NotificationUtil {
-    private const val NOTIFICATION_REQUEST_CODE = 0
-    private const val NOTIFICATION_DELETE_REQUEST_CODE = 1
+    private const val NOTIFICATION_VIEW_REQUEST_CODE = 1
+    private const val NOTIFICATION_DELETE_REQUEST_CODE = 2
 
     private const val INTERNAL_NOTIFICATION_CHANNEL_PREFIX = "EveryPush.Internal"
     private const val USER_NOTIFICATION_CHANNEL_PREFIX = "EveryPush.User"
@@ -121,13 +121,14 @@ object NotificationUtil {
         title: String,
         content: CharSequence,
         topicId: String?,
+        messageId: String,
         id: Int? = null,
     ): Int? {
         val currentTime = System.currentTimeMillis()
         val notificationId = id ?: currentTime.toInt()
         val mChannelId = getNotificationChannelId(topicId)
         val notificationHolder =
-            NotificationHolder(title, content.toString(), notificationId, topicId)
+            NotificationHolder(title, content.toString(), notificationId, topicId, messageId)
         val notification = NotificationCompat.Builder(App.context, mChannelId)
             .setContentTitle(title)
             .setContentText(content)
@@ -144,11 +145,13 @@ object NotificationUtil {
         topicId: String?,
         previewImage: Bitmap,
         id: Int? = null,
+        messageId: String,
     ): Int? {
         val currentTime = System.currentTimeMillis()
         val notificationId = id ?: currentTime.toInt()
         val mChannelId = getNotificationChannelId(topicId)
-        val notificationHolder = NotificationHolder(title, content, notificationId, topicId)
+        val notificationHolder =
+            NotificationHolder(title, content, notificationId, topicId, messageId)
         val notification = NotificationCompat.Builder(App.context, mChannelId)
             .setContentText(content)
             .setContentTitle(title)
@@ -172,7 +175,8 @@ object NotificationUtil {
         title: String,
         content: Bitmap,
         topicId: String?,
-        id: Int? = null
+        id: Int? = null,
+        messageId: String,
     ): Int? {
         val currentTime = System.currentTimeMillis()
         val notificationId = id ?: currentTime
@@ -181,7 +185,8 @@ object NotificationUtil {
             title,
             App.context.getString(R.string.image_notification_brief),
             notificationId.toInt(),
-            topicId
+            topicId,
+            messageId
         )
         val notificationBuilder = NotificationCompat.Builder(App.context, mChannelId)
             .setContentTitle(title)
@@ -229,7 +234,7 @@ object NotificationUtil {
         val notificationGroupId = getNotificationGroupId(sendNotificationData.holder.topicId)
         val notification = sendNotificationData.notificationBuilder
             .applyCommonOptions()
-            .setContentIntent(getPendingIntent(sendNotificationData.holder.topicId))
+            .setContentIntent(getPendingIntent(sendNotificationData.holder))
             .setGroup(notificationGroupId)
             .apply {
                 try {
@@ -246,7 +251,7 @@ object NotificationUtil {
                     this.setDeleteIntent(
                         PendingIntent.getBroadcast(
                             App.context,
-                            NOTIFICATION_DELETE_REQUEST_CODE,
+                            sendNotificationData.holder.hashCode() + 31 * NOTIFICATION_DELETE_REQUEST_CODE,
                             dismissIntent,
                             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                         )
@@ -261,7 +266,7 @@ object NotificationUtil {
 
         if (App.notifications[notificationGroupId] == null) {
             App.notifications[notificationGroupId] =
-                mutableListOf<NotificationHolder>(sendNotificationData.holder)
+                mutableListOf(sendNotificationData.holder)
         } else {
             App.notifications[notificationGroupId]?.let { list ->
                 list.remove { it.id == sendNotificationData.holder.id }
@@ -318,7 +323,7 @@ object NotificationUtil {
                     this.setDeleteIntent(
                         PendingIntent.getBroadcast(
                             App.context,
-                            NOTIFICATION_DELETE_REQUEST_CODE,
+                            notificationGroupId.hashCode(),
                             dismissIntent,
                             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                         )
@@ -362,10 +367,11 @@ object NotificationUtil {
         }
     }
 
-    private fun getPendingIntent(topicId: String?): PendingIntent {
-        return if (topicId == null) {
+    private fun getPendingIntent(notificationHolder: NotificationHolder): PendingIntent {
+        return if (notificationHolder.topicId == null) {
             PendingIntent.getActivity(
-                App.context, NOTIFICATION_REQUEST_CODE,
+                App.context,
+                notificationHolder.hashCode() + 31 * NOTIFICATION_VIEW_REQUEST_CODE,
                 Intent(
                     Intent.ACTION_VIEW,
                     Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/topicDetail"),
@@ -376,10 +382,11 @@ object NotificationUtil {
             )
         } else {
             PendingIntent.getActivity(
-                App.context, NOTIFICATION_REQUEST_CODE,
+                App.context,
+                notificationHolder.hashCode() + 31 * NOTIFICATION_VIEW_REQUEST_CODE,
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/topicDetail?topicId=$topicId"),
+                    Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/topicDetail?topicId=${notificationHolder.topicId}"),
                     App.context,
                     MainActivity::class.java
                 ),
