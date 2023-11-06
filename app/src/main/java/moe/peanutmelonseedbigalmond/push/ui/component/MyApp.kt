@@ -27,7 +27,7 @@ private const val topicDetailPageUri =
     "app://moe.peanutmelonseedbigalmond.push/pages/topicDetail?topicId={topicId}"
 
 private const val messageDetailPageUri =
-    "app://moe.peanutmelonseedbigalmond.push/pages/messageDetail?messageBody={messageBody}?messageId={messageId}"
+    "app://moe.peanutmelonseedbigalmond.push/pages/messageDetail?messageBody={messageBody}&messageId={messageId}"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

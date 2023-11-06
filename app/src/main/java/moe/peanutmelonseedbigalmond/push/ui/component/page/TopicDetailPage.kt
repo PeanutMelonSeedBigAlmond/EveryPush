@@ -140,7 +140,7 @@ fun TopicDetailPage(topicId: String?) {
     )
 
 
-    LaunchedEffect(key1 = topicId) {
+    LaunchedEffect(key1 = Unit) {
         if (!vm.initialized) {
             getTopicDetail()
             vm.initialized = true

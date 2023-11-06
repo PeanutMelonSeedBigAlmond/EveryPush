@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import android.text.Spanned
 import android.util.Log
@@ -16,6 +15,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BigPictureStyle
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.TaskStackBuilder
+import androidx.core.net.toUri
 import moe.peanutmelonseedbigalmond.push.App
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.receiver.NotificationDismissBroadcastReceiver
@@ -368,31 +369,22 @@ object NotificationUtil {
     }
 
     private fun getPendingIntent(notificationHolder: NotificationHolder): PendingIntent {
-        return if (notificationHolder.topicId == null) {
-            PendingIntent.getActivity(
-                App.context,
-                notificationHolder.hashCode() + 31 * NOTIFICATION_VIEW_REQUEST_CODE,
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/topicDetail"),
-                    App.context,
-                    MainActivity::class.java
-                ),
-                PendingIntent.FLAG_IMMUTABLE
-            )
+        val uriStr = if (notificationHolder.topicId == null) {
+            "app://moe.peanutmelonseedbigalmond.push/pages/topicDetail"
         } else {
-            PendingIntent.getActivity(
-                App.context,
+            "app://moe.peanutmelonseedbigalmond.push/pages/topicDetail?topicId=${notificationHolder.topicId}"
+        }
+
+        val intent =
+            Intent(Intent.ACTION_VIEW, uriStr.toUri(), App.context, MainActivity::class.java)
+        val pendingIntent = TaskStackBuilder.create(App.context).run {
+            addNextIntentWithParentStack(intent)
+            getPendingIntent(
                 notificationHolder.hashCode() + 31 * NOTIFICATION_VIEW_REQUEST_CODE,
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("app://moe.peanutmelonseedbigalmond.push/pages/topicDetail?topicId=${notificationHolder.topicId}"),
-                    App.context,
-                    MainActivity::class.java
-                ),
                 PendingIntent.FLAG_IMMUTABLE
             )
         }
+        return pendingIntent!!
     }
 
     private data class SendNotificationData(
