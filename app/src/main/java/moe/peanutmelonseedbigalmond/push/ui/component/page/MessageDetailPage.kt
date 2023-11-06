@@ -8,8 +8,10 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -41,6 +43,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -56,12 +59,14 @@ import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.ImageWidget
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.view.SelectableAndClickableTextView
 import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
+import moe.peanutmelonseedbigalmond.push.utils.DatetimeUtils
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun MessageDetailPage(messageId: Long, messageBody: MessageData?) {
     check(messageBody != null || messageId > 0L) { "Invalid args: messageId=$messageId,messageBody=$messageBody" }
 
+    val context = LocalContext.current
     var body by remember { mutableStateOf(messageBody) }
     val navController = LocalAppNavHostController.current
     val globalViewModel = LocalGlobalViewModel.current
@@ -156,8 +161,22 @@ fun MessageDetailPage(messageId: Long, messageBody: MessageData?) {
                         item {
                             DetailBodyTitle(
                                 content = body!!.title,
-                                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+                                modifier = Modifier.fillMaxWidth()
                             )
+                        }
+                        item {
+                            Text(
+                                text = body?.sendTime?.let {
+                                    DatetimeUtils.getDateString(
+                                        context,
+                                        it
+                                    )
+                                } ?: "",
+                                maxLines = 1,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
                     item {
