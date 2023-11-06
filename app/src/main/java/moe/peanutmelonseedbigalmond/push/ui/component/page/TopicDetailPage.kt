@@ -29,6 +29,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +42,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalAppNavHostController
@@ -54,6 +60,7 @@ import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun TopicDetailPage(topicId: String?) {
+    val vm = viewModel<TopicDetailPageViewModel>()
     val navController = LocalAppNavHostController.current
     val globalViewModel = LocalGlobalViewModel.current
     val context = LocalContext.current
@@ -62,7 +69,7 @@ fun TopicDetailPage(topicId: String?) {
     var sendMessageDialogShow by remember { mutableStateOf(false) }
     var subTitle by remember { mutableStateOf<String?>(null) }
     var isRefreshing by remember { mutableStateOf(false) }
-    var messages by remember { mutableStateOf(listOf<MessageData>()) }
+    val messages by vm.messages.collectAsState()
     val pushTokenList by remember(globalViewModel) { globalViewModel.tokenList }
 
     fun showSnackBar(msg: String) {
@@ -84,9 +91,9 @@ fun TopicDetailPage(topicId: String?) {
         try {
             val topicDetail = globalViewModel.client.topicDetail(topicId)
             subTitle = topicDetail.name ?: context.getString(R.string.title_default_notification)
-            messages = topicDetail.messages.map {
+            vm.updateMessage(topicDetail.messages.map {
                 return@map MessageData(it.type, it.title, it.text, it.id, it.sendAt)
-            }
+            })
         } catch (_: CancellationException) {
         } catch (e: Exception) {
             e.printStackTrace()
@@ -132,9 +139,14 @@ fun TopicDetailPage(topicId: String?) {
         }
     )
 
+
     LaunchedEffect(key1 = topicId) {
-        getTopicDetail()
+        if (!vm.initialized) {
+            getTopicDetail()
+            vm.initialized = true
+        }
     }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackBarState) },
@@ -269,4 +281,14 @@ private fun SendMessageDialog(onCancel: () -> Unit, onConfirm: (String) -> Unit)
             }
         }
     )
+}
+
+class TopicDetailPageViewModel : ViewModel() {
+    private val _messages = MutableStateFlow(emptyList<MessageData>())
+    val messages: StateFlow<List<MessageData>> = _messages.asStateFlow()
+    var initialized by mutableStateOf(false)
+
+    fun updateMessage(message: List<MessageData>) {
+        _messages.value = message
+    }
 }
