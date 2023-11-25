@@ -71,7 +71,7 @@ android {
 }
 
 val markwonVersion = "4.6.2"
-
+val emojiVersion = "1.4.0"
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -130,6 +130,11 @@ dependencies {
     implementation("io.noties.markwon:image-coil:$markwonVersion")
     implementation("io.noties.markwon:linkify:$markwonVersion")
     implementation("io.noties.markwon:simple-ext:$markwonVersion")
+    //endregion
+
+    //region emoji 扩展支持
+    implementation("androidx.emoji2:emoji2:$emojiVersion")
+    implementation("androidx.emoji2:emoji2-bundled:$emojiVersion")
     //endregion
 
     implementation("com.github.DylanCaiCoding.Longan:longan:1.1.1")

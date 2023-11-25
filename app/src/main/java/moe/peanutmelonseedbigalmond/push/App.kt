@@ -19,6 +19,8 @@ import android.util.Log
 import androidx.annotation.Px
 import androidx.core.graphics.applyCanvas
 import androidx.core.graphics.createBitmap
+import androidx.emoji2.bundled.BundledEmojiCompatConfig
+import androidx.emoji2.text.EmojiCompat
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.imageLoader
@@ -123,6 +125,7 @@ class App : Application(), ImageLoaderFactory {
             key("isDebug", BuildConfig.DEBUG)
             key("buildType", BuildConfig.BUILD_TYPE)
         }
+        EmojiCompat.init(BundledEmojiCompatConfig(this))
     }
 
     override fun onTrimMemory(level: Int) {
