@@ -1,5 +1,7 @@
 import java.io.FileInputStream
+import java.util.Calendar
 import java.util.Properties
+import java.util.TimeZone
 
 plugins {
     id("com.android.application")
@@ -21,7 +23,7 @@ android {
         applicationId = "moe.peanutmelonseedbigalmond.push"
         minSdk = 23
         targetSdk = 34
-        versionCode = 1
+        versionCode = generateVersionCode()
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -142,4 +144,17 @@ dependencies {
 }
 
 configurations {
+}
+
+fun generateVersionCode(): Int {
+    val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"))
+    val shortYear = calendar.get(Calendar.YEAR) % 100
+    val month = calendar.get(Calendar.MONTH) + 1
+    val day = calendar.get(Calendar.DATE)
+
+    return try {
+        return String.format("%02d%02d%02d", shortYear, month, day).toInt()
+    } catch (_: Exception) {
+        1
+    }
 }
