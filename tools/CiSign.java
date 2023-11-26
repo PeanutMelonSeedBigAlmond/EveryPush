@@ -8,7 +8,13 @@ import java.util.stream.Collectors;
 
 public class CiSign {
     public static void main(String[] args) {
-        File targetDir = new File("app/signTarget");
+        String target;
+        if (args.length==0){
+            target="app/signTarget";
+        }else {
+            target=args[0];
+        }
+        File targetDir = new File(target);
         if (!targetDir.exists()) {
             targetDir.mkdirs();
         }
@@ -25,7 +31,8 @@ public class CiSign {
 
         list.stream().forEach((file) -> {
             try {
-                String fileName = file.getName().replace("unsigned","signed");
+                String fileName = file.getName().replace("unsigned", "signed");
+                System.out.println("Copying "+fileName);
                 Files.copy(file.toPath(), new File(targetDir, fileName).toPath());
             } catch (IOException exception) {
                 exception.printStackTrace();
