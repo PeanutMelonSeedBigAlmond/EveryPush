@@ -55,6 +55,30 @@ android {
             )
         }
     }
+
+    productFlavors {
+        flavorDimensions += "emoji"
+
+        create("base") {
+            versionNameSuffix = ".base"
+            dimension = "emoji"
+        }
+
+        create("emoji") {
+            versionNameSuffix = ".emoji"
+            dimension = "emoji"
+        }
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            isUniversalApk = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -135,8 +159,8 @@ dependencies {
     //endregion
 
     //region emoji 扩展支持
-    implementation("androidx.emoji2:emoji2:$emojiVersion")
-    implementation("androidx.emoji2:emoji2-bundled:$emojiVersion")
+    "emojiImplementation"("androidx.emoji2:emoji2:$emojiVersion")
+    "emojiImplementation"("androidx.emoji2:emoji2-bundled:$emojiVersion")
     //endregion
 
     implementation("com.github.DylanCaiCoding.Longan:longan:1.1.1")

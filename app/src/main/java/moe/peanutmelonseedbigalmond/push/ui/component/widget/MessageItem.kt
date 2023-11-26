@@ -36,7 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.peanutmelonseedbigalmond.push.App
+import moe.peanutmelonseedbigalmond.push.BaseApp
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.getWidgetSurfaceColor
 import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
@@ -74,7 +74,7 @@ fun MessageItem(
                     }
 
                     MessageData.Type.MARKDOWN -> {
-                        val spanned = App.markwon.toMarkdown(messageData.content)
+                        val spanned = BaseApp.markwon.toMarkdown(messageData.content)
                         ImageWithTextContent(
                             title = messageData.title,
                             content = spanned,

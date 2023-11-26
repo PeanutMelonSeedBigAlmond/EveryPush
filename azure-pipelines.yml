@@ -49,23 +49,23 @@ steps:
     gradleOptions: '-Xmx3072m'
     sonarQubeRunAnalysis: false
 
+- script: |
+    sudo java tools/CiSign.java
+  displayName: Pre-sign apk
+
 - task: AndroidSigning@3
   displayName: Signing apk
   inputs:
-    apkFiles: 'app/build/outputs/apk/release/app-release-unsigned.apk'
+    apkFiles: 'app/signTarget/*.apk'
     apksignerKeystoreFile: 'keystore.jks'
     apksignerKeystorePassword: $(keystorePassword)
     apksignerKeystoreAlias: 'release'
     apksignerKeyPassword: $(keyPassword)
 
-- script: |
-    sudo cp app/build/outputs/apk/release/app-release-unsigned.apk $(Build.ArtifactStagingDirectory)/app-release.apk
-  displayName: Pre-upload
-
 - task: PublishBuildArtifacts@1
-  displayName: Upload artifact
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'EveryPush'
-    publishLocation: 'Container'
+displayName: Upload artifact
+inputs:
+  PathtoPublish: 'app/signTarget'
+  ArtifactName: 'EveryPush'
+  publishLocation: 'Container'
     

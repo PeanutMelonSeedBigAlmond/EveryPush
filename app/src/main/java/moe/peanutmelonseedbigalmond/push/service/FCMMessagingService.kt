@@ -19,7 +19,7 @@ import io.noties.markwon.image.ImagesPlugin
 import io.noties.markwon.image.coil.CoilImagesPlugin
 import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.simple.ext.SimpleExtPlugin
-import moe.peanutmelonseedbigalmond.push.App
+import moe.peanutmelonseedbigalmond.push.BaseApp
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.repository.AppConfigurationRepository
 import moe.peanutmelonseedbigalmond.push.repository.UserTokenRepository
@@ -104,9 +104,10 @@ class FCMMessagingService : FirebaseMessagingService() {
         channelId: String?,
         messageId: String
     ) {
-        val jobService = App.context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        val jobService =
+            BaseApp.context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         val componentName =
-            ComponentName(App.context, DownloadNotificationImageJobService::class.java)
+            ComponentName(BaseApp.context, DownloadNotificationImageJobService::class.java)
         val extras = persistableBundleOf(
             "notificationChannelId" to channelId,
             "notificationTitle" to title,
@@ -127,9 +128,10 @@ class FCMMessagingService : FirebaseMessagingService() {
         channelId: String?,
         messageId: String
     ) {
-        val jobService = App.context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        val jobService =
+            BaseApp.context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         val componentName =
-            ComponentName(App.context, DownloadNotificationImageJobService::class.java)
+            ComponentName(BaseApp.context, DownloadNotificationImageJobService::class.java)
         val extras = persistableBundleOf(
             "notificationChannelId" to channelId,
             "notificationTitle" to title,

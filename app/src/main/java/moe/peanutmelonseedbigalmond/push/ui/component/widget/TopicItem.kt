@@ -26,7 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import moe.peanutmelonseedbigalmond.push.App
+import moe.peanutmelonseedbigalmond.push.BaseApp
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.getWidgetSurfaceColor
 import moe.peanutmelonseedbigalmond.push.ui.data.TopicData
@@ -75,7 +75,7 @@ fun TopicItem(
                 text = if (data.latestMessage?.title?.isNotBlank() == true) {
                     data.latestMessage.title
                 } else if (data.latestMessage?.content?.isNotBlank() == true) {
-                    App.markwon.toMarkdown(data.latestMessage.content).toString()
+                    BaseApp.markwon.toMarkdown(data.latestMessage.content).toString()
                 } else {
                     ""
                 }.replace(Regex("[\\s\\n]+"), " "),

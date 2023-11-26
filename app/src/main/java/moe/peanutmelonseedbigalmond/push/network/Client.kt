@@ -6,7 +6,7 @@ import com.google.gson.JsonObject
 import com.haroldadmin.cnradapter.NetworkResponseAdapterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import moe.peanutmelonseedbigalmond.push.App
+import moe.peanutmelonseedbigalmond.push.BaseApp
 import moe.peanutmelonseedbigalmond.push.network.exception.ServerException
 import moe.peanutmelonseedbigalmond.push.network.response.DeviceResponse
 import moe.peanutmelonseedbigalmond.push.network.response.GenericUserInfoResponse
@@ -280,7 +280,7 @@ class Client(baseUrl: String) {
     }
 
     private fun readQueryStatement(name: String): String {
-        return App.context.assets.open("graphql/$name.graphql.query").use {
+        return BaseApp.context.assets.open("graphql/$name.graphql.query").use {
             return@use it.readBytes().toString(Charset.defaultCharset())
         }
     }
