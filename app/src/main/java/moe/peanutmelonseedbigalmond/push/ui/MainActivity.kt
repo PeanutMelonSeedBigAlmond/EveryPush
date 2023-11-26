@@ -21,7 +21,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import moe.peanutmelonseedbigalmond.push.App
+import moe.peanutmelonseedbigalmond.push.BaseApp
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.repository.AppConfigurationRepository
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalActivity
@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispa
     override fun onResume() {
         super.onResume()
         askNotificationPermission()
-        App.summaryNotifications.keys.forEach {
+        BaseApp.summaryNotifications.keys.forEach {
             NotificationUtil.cancelNotificationSummary(it)
         }
     }

@@ -17,7 +17,7 @@ import androidx.core.app.NotificationCompat.BigPictureStyle
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
-import moe.peanutmelonseedbigalmond.push.App
+import moe.peanutmelonseedbigalmond.push.BaseApp
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.receiver.NotificationDismissBroadcastReceiver
 import moe.peanutmelonseedbigalmond.push.ui.MainActivity
@@ -38,12 +38,12 @@ object NotificationUtil {
     private const val NOTIFICATION_GROUP_ID_USER_PREFIX = "$NOTIFICATION_GROUP_ID_PREFIX.User"
 
     fun setupDefaultNotificationChannel() {
-        val notificationManager = NotificationManagerCompat.from(App.context)
+        val notificationManager = NotificationManagerCompat.from(BaseApp.context)
         if (SystemUtils.isNewerThanO()) {
             notificationManager.createNotificationChannel(
                 NotificationChannel(
                     DEFAULT_NOTIFICATION_CHANNEL,
-                    App.context.getString(R.string.title_default_notification),
+                    BaseApp.context.getString(R.string.title_default_notification),
                     NotificationManager.IMPORTANCE_HIGH
                 )
             )
@@ -52,13 +52,13 @@ object NotificationUtil {
 
     fun setupNotificationChannels(channelIdAndName: Map<String?, String?>) {
         if (!SystemUtils.isNewerThanO()) return
-        val nm = NotificationManagerCompat.from(App.context)
+        val nm = NotificationManagerCompat.from(BaseApp.context)
         val inputChannelAndName = channelIdAndName.map { (k, v) ->
             if (k != null) {
                 return@map "$USER_NOTIFICATION_CHANNEL_PREFIX.$k" to v!!
             } else {
                 // 默认通知渠道
-                return@map DEFAULT_NOTIFICATION_CHANNEL to App.context.getString(R.string.notification_channel_group_received_messages)
+                return@map DEFAULT_NOTIFICATION_CHANNEL to BaseApp.context.getString(R.string.notification_channel_group_received_messages)
             }
         }.toMap()
 
@@ -90,7 +90,7 @@ object NotificationUtil {
         topicId: String,
         name: String
     ) {
-        val nm = NotificationManagerCompat.from(App.context)
+        val nm = NotificationManagerCompat.from(BaseApp.context)
         if (SystemUtils.isNewerThanO()) {
             nm.createNotificationChannel(
                 NotificationChannel(
@@ -103,14 +103,14 @@ object NotificationUtil {
     }
 
     fun deleteNotificationChannel(id: String) {
-        val nm = NotificationManagerCompat.from(App.context)
+        val nm = NotificationManagerCompat.from(BaseApp.context)
         if (SystemUtils.isNewerThanO()) {
             nm.deleteNotificationChannel(id)
         }
     }
 
     fun clearNotificationChannel() {
-        val nm = NotificationManagerCompat.from(App.context)
+        val nm = NotificationManagerCompat.from(BaseApp.context)
         if (SystemUtils.isNewerThanO()) {
             nm.notificationChannels.forEach {
                 nm.deleteNotificationChannel(it.id)
@@ -130,12 +130,12 @@ object NotificationUtil {
         val mChannelId = getNotificationChannelId(topicId)
         val notificationHolder =
             NotificationHolder(title, content.toString(), notificationId, topicId, messageId)
-        val notification = NotificationCompat.Builder(App.context, mChannelId)
+        val notification = NotificationCompat.Builder(BaseApp.context, mChannelId)
             .setContentTitle(title)
             .setContentText(content)
             .setWhen(currentTime)
             .setLargeIcon(
-                BitmapFactory.decodeResource(App.context.resources, R.drawable.ic_notifications)
+                BitmapFactory.decodeResource(BaseApp.context.resources, R.drawable.ic_notifications)
             )
         return sendNotification(SendNotificationData(notification, notificationHolder))
     }
@@ -153,7 +153,7 @@ object NotificationUtil {
         val mChannelId = getNotificationChannelId(topicId)
         val notificationHolder =
             NotificationHolder(title, content, notificationId, topicId, messageId)
-        val notification = NotificationCompat.Builder(App.context, mChannelId)
+        val notification = NotificationCompat.Builder(BaseApp.context, mChannelId)
             .setContentText(content)
             .setContentTitle(title)
             .setWhen(currentTime)
@@ -165,7 +165,7 @@ object NotificationUtil {
             .setLargeIcon(previewImage)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
-                    App.context.resources,
+                    BaseApp.context.resources,
                     R.drawable.ic_notifications
                 )
             )
@@ -184,12 +184,12 @@ object NotificationUtil {
         val mChannelId = getNotificationChannelId(topicId)
         val notificationHolder = NotificationHolder(
             title,
-            App.context.getString(R.string.image_notification_brief),
+            BaseApp.context.getString(R.string.image_notification_brief),
             notificationId.toInt(),
             topicId,
             messageId
         )
-        val notificationBuilder = NotificationCompat.Builder(App.context, mChannelId)
+        val notificationBuilder = NotificationCompat.Builder(BaseApp.context, mChannelId)
             .setContentTitle(title)
             .setLargeIcon(content)
             .setStyle(
@@ -198,22 +198,22 @@ object NotificationUtil {
                     .bigLargeIcon(null as Bitmap?)
             )
             .setWhen(currentTime)
-            .setContentText(App.context.getString(R.string.image_notification_brief))
+            .setContentText(BaseApp.context.getString(R.string.image_notification_brief))
         return sendNotification(SendNotificationData(notificationBuilder, notificationHolder))
     }
 
     fun cancelNotification(notificationId: Int, notificationGroupId: String) {
-        val nm = NotificationManagerCompat.from(App.context)
-        App.notifications[notificationGroupId]?.remove { it.id == notificationId }
+        val nm = NotificationManagerCompat.from(BaseApp.context)
+        BaseApp.notifications[notificationGroupId]?.remove { it.id == notificationId }
         nm.cancel(notificationId)
     }
 
     fun cancelNotificationSummary(notificationGroupId: String) {
-        val nm = NotificationManagerCompat.from(App.context)
-        App.notifications.remove(notificationGroupId)?.forEach {
+        val nm = NotificationManagerCompat.from(BaseApp.context)
+        BaseApp.notifications.remove(notificationGroupId)?.forEach {
             nm.cancel(it.id)
         }
-        App.summaryNotifications.remove(notificationGroupId)?.let {
+        BaseApp.summaryNotifications.remove(notificationGroupId)?.let {
             nm.cancel(it)
         }
     }
@@ -223,7 +223,7 @@ object NotificationUtil {
      */
     private fun sendNotification(sendNotificationData: SendNotificationData): Int? {
         if (ActivityCompat.checkSelfPermission(
-                App.context,
+                BaseApp.context,
                 Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -240,7 +240,7 @@ object NotificationUtil {
             .apply {
                 try {
                     val dismissIntent =
-                        Intent(App.context, NotificationDismissBroadcastReceiver::class.java)
+                        Intent(BaseApp.context, NotificationDismissBroadcastReceiver::class.java)
                     dismissIntent.action =
                         NotificationDismissBroadcastReceiver.NOTIFICATION_DELETED_ACTION
                     dismissIntent.putExtra("notificationId", sendNotificationData.holder.id)
@@ -251,7 +251,7 @@ object NotificationUtil {
                     )
                     this.setDeleteIntent(
                         PendingIntent.getBroadcast(
-                            App.context,
+                            BaseApp.context,
                             sendNotificationData.holder.hashCode() + 31 * NOTIFICATION_DELETE_REQUEST_CODE,
                             dismissIntent,
                             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
@@ -262,32 +262,32 @@ object NotificationUtil {
                 }
             }
             .build()
-        val nm = NotificationManagerCompat.from(App.context)
+        val nm = NotificationManagerCompat.from(BaseApp.context)
         nm.notify(sendNotificationData.holder.id, notification)
 
-        if (App.notifications[notificationGroupId] == null) {
-            App.notifications[notificationGroupId] =
+        if (BaseApp.notifications[notificationGroupId] == null) {
+            BaseApp.notifications[notificationGroupId] =
                 mutableListOf(sendNotificationData.holder)
         } else {
-            App.notifications[notificationGroupId]?.let { list ->
+            BaseApp.notifications[notificationGroupId]?.let { list ->
                 list.remove { it.id == sendNotificationData.holder.id }
                 list.add(sendNotificationData.holder)
             }
         }
         //endregion
 
-        val notificationGroupContentList = App.notifications[notificationGroupId]?.map {
+        val notificationGroupContentList = BaseApp.notifications[notificationGroupId]?.map {
             it.content
         } ?: return sendNotificationData.holder.id
 
         //region 通知摘要
         val summaryId = obtainSummaryNotificationId(sendNotificationData.holder.topicId)
         val summaryNotification = NotificationCompat.Builder(
-            App.context,
+            BaseApp.context,
             getNotificationChannelId(sendNotificationData.holder.topicId)
         )
             .setContentTitle(
-                App.context.resources.getQuantityString(
+                BaseApp.context.resources.getQuantityString(
                     R.plurals.notification_summary_title,
                     notificationGroupContentList.size,
                     notificationGroupContentList.size
@@ -296,7 +296,7 @@ object NotificationUtil {
             .applyCommonOptions()
             .setStyle(NotificationCompat.InboxStyle()
                 .setSummaryText(
-                    App.context.resources.getQuantityString(
+                    BaseApp.context.resources.getQuantityString(
                         R.plurals.notification_summary_title,
                         notificationGroupContentList.size,
                         notificationGroupContentList.size
@@ -312,7 +312,7 @@ object NotificationUtil {
             .apply {
                 try {
                     val dismissIntent =
-                        Intent(App.context, NotificationDismissBroadcastReceiver::class.java)
+                        Intent(BaseApp.context, NotificationDismissBroadcastReceiver::class.java)
                     dismissIntent.action =
                         NotificationDismissBroadcastReceiver.NOTIFICATION_DELETED_ACTION
                     dismissIntent.putExtra("notificationId", summaryId)
@@ -323,7 +323,7 @@ object NotificationUtil {
                     )
                     this.setDeleteIntent(
                         PendingIntent.getBroadcast(
-                            App.context,
+                            BaseApp.context,
                             notificationGroupId.hashCode(),
                             dismissIntent,
                             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
@@ -335,7 +335,7 @@ object NotificationUtil {
             }
             .build()
         nm.notify(summaryId, summaryNotification)
-        App.summaryNotifications[notificationGroupId] = summaryId
+        BaseApp.summaryNotifications[notificationGroupId] = summaryId
         //endregion
 
         return sendNotificationData.holder.id
@@ -376,8 +376,8 @@ object NotificationUtil {
         }
 
         val intent =
-            Intent(Intent.ACTION_VIEW, uriStr.toUri(), App.context, MainActivity::class.java)
-        val pendingIntent = TaskStackBuilder.create(App.context).run {
+            Intent(Intent.ACTION_VIEW, uriStr.toUri(), BaseApp.context, MainActivity::class.java)
+        val pendingIntent = TaskStackBuilder.create(BaseApp.context).run {
             addNextIntentWithParentStack(intent)
             getPendingIntent(
                 notificationHolder.hashCode() + 31 * NOTIFICATION_VIEW_REQUEST_CODE,
@@ -405,8 +405,8 @@ object NotificationUtil {
     }
 
     private fun obtainSummaryNotificationId(topicId: String?): Int {
-        if (getNotificationGroupId(topicId) in App.summaryNotifications) {
-            return App.summaryNotifications[getNotificationGroupId(topicId)]!!
+        if (getNotificationGroupId(topicId) in BaseApp.summaryNotifications) {
+            return BaseApp.summaryNotifications[getNotificationGroupId(topicId)]!!
         } else {
             return Random.nextInt(0, Int.MAX_VALUE)
         }

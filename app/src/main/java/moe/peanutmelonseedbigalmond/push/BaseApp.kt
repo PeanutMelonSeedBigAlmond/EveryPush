@@ -19,8 +19,6 @@ import android.util.Log
 import androidx.annotation.Px
 import androidx.core.graphics.applyCanvas
 import androidx.core.graphics.createBitmap
-import androidx.emoji2.bundled.BundledEmojiCompatConfig
-import androidx.emoji2.text.EmojiCompat
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.imageLoader
@@ -50,7 +48,7 @@ import io.noties.markwon.simple.ext.SimpleExtPlugin
 import moe.peanutmelonseedbigalmond.push.utils.notification.NotificationHolder
 import org.commonmark.node.Link
 
-class App : Application(), ImageLoaderFactory {
+abstract class BaseApp : Application(), ImageLoaderFactory {
     companion object {
         @SuppressLint("StaticFieldLeak")
         lateinit var context: Context
@@ -125,7 +123,6 @@ class App : Application(), ImageLoaderFactory {
             key("isDebug", BuildConfig.DEBUG)
             key("buildType", BuildConfig.BUILD_TYPE)
         }
-        EmojiCompat.init(BundledEmojiCompatConfig(this))
     }
 
     override fun onTrimMemory(level: Int) {

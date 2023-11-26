@@ -38,6 +38,12 @@ steps:
     cp $(googleservice.secureFilePath) app/
   displayName: Setup Firebase configuration
 
+- task: Cache@2
+  inputs:
+    key: '"cache" | "gradle"'
+    path: 'app/build'
+  displayName: Setup cache
+
 - task: Gradle@3
   displayName: Build apk
   inputs:
@@ -49,18 +55,22 @@ steps:
     gradleOptions: '-Xmx3072m'
     sonarQubeRunAnalysis: false
 
+- script: |
+    sudo java tools/CiSign.java $(Build.ArtifactStagingDirectory)
+  displayName: Pre-sign apk
+
 - task: AndroidSigning@3
   displayName: Signing apk
   inputs:
-    apkFiles: 'app/build/outputs/apk/release/app-release-unsigned.apk'
+    apkFiles: '$(Build.ArtifactStagingDirectory)/*.apk'
     apksignerKeystoreFile: 'keystore.jks'
     apksignerKeystorePassword: $(keystorePassword)
     apksignerKeystoreAlias: 'release'
     apksignerKeyPassword: $(keyPassword)
 
 - script: |
-    sudo cp app/build/outputs/apk/release/app-release-unsigned.apk $(Build.ArtifactStagingDirectory)/app-release.apk
-  displayName: Pre-upload
+    sudo java tools/RemoveSignCache.java $(Build.ArtifactStagingDirectory)
+  displayName: Pre-sign upload apk
 
 - task: PublishBuildArtifacts@1
   displayName: Upload artifact

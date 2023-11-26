@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import moe.peanutmelonseedbigalmond.push.App
+import moe.peanutmelonseedbigalmond.push.BaseApp
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.utils.SpanUtils
 import moe.peanutmelonseedbigalmond.push.utils.notification.NotificationUtil
@@ -54,7 +54,7 @@ class DownloadNotificationImageJobService : JobService(),
         channelId: String?,
         messageId: String,
     ) {
-        val spanned = App.markwon.toMarkdown(content)
+        val spanned = BaseApp.markwon.toMarkdown(content)
         val firstImageUrl = SpanUtils.findImageUrlFromSpan(spanned).firstOrNull()
         val notificationId = sendTextNotification(title, spanned, channelId, messageId)
         if (firstImageUrl != null) {
@@ -95,7 +95,7 @@ class DownloadNotificationImageJobService : JobService(),
         messageId: String,
     ) {
         launch {
-            val imageRequest = ImageRequest.Builder(App.context)
+            val imageRequest = ImageRequest.Builder(BaseApp.context)
                 .data(imageUrl)
                 .build()
             val notificationId =

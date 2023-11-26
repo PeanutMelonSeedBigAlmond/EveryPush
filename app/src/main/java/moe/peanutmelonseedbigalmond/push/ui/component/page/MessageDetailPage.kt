@@ -52,7 +52,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import moe.peanutmelonseedbigalmond.push.App
+import moe.peanutmelonseedbigalmond.push.BaseApp
 import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalAppNavHostController
 import moe.peanutmelonseedbigalmond.push.ui.component.LocalGlobalViewModel
@@ -221,7 +221,7 @@ private fun DetailBody(
                 it.setTextIsSelectable(true)
             }
         }, modifier = Modifier.fillMaxWidth()) {
-            App.markwon.setMarkdown(it, messageData.content)
+            BaseApp.markwon.setMarkdown(it, messageData.content)
         }
     } else { // text and else
         SelectionContainer {
