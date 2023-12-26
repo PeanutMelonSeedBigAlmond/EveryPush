@@ -22,21 +22,29 @@ import moe.peanutmelonseedbigalmond.push.R
 import moe.peanutmelonseedbigalmond.push.receiver.NotificationDismissBroadcastReceiver
 import moe.peanutmelonseedbigalmond.push.ui.MainActivity
 import moe.peanutmelonseedbigalmond.push.utils.SystemUtils
-import kotlin.random.Random
 
 object NotificationUtil {
     private const val NOTIFICATION_VIEW_REQUEST_CODE = 1
     private const val NOTIFICATION_DELETE_REQUEST_CODE = 2
 
+
+    //<editor-fold desc="通知渠道ID">
     private const val INTERNAL_NOTIFICATION_CHANNEL_PREFIX = "EveryPush.Internal"
     private const val USER_NOTIFICATION_CHANNEL_PREFIX = "EveryPush.User"
     private const val DEFAULT_NOTIFICATION_CHANNEL =
         "$INTERNAL_NOTIFICATION_CHANNEL_PREFIX.Default"
+    //</editor-fold>
 
+    //<editor-fold desc="通知渠道组ID">
     private const val NOTIFICATION_GROUP_ID_PREFIX = "EveryPush.NotificationGroup"
     private const val NOTIFICATION_GROUP_ID_DEFAULT = "$NOTIFICATION_GROUP_ID_PREFIX.Default"
     private const val NOTIFICATION_GROUP_ID_USER_PREFIX = "$NOTIFICATION_GROUP_ID_PREFIX.User"
+    //</editor-fold>
 
+    //<editor-fold desc="通知渠道配置">
+    /**
+     * 设置默认的通知渠道
+     */
     fun setupDefaultNotificationChannel() {
         val notificationManager = NotificationManagerCompat.from(BaseApp.context)
         if (SystemUtils.isNewerThanO()) {
@@ -50,6 +58,10 @@ object NotificationUtil {
         }
     }
 
+    /**
+     * 添加/修改多个通知渠道
+     * @param channelIdAndName Map<String?, String?>
+     */
     fun setupNotificationChannels(channelIdAndName: Map<String?, String?>) {
         if (!SystemUtils.isNewerThanO()) return
         val nm = NotificationManagerCompat.from(BaseApp.context)
@@ -86,6 +98,11 @@ object NotificationUtil {
         }
     }
 
+    /**
+     * 添加/修改单个通知渠道
+     * @param topicId String
+     * @param name String
+     */
     fun setupNotificationChannel(
         topicId: String,
         name: String
@@ -102,6 +119,10 @@ object NotificationUtil {
         }
     }
 
+    /**
+     * 删除通知渠道
+     * @param id String
+     */
     fun deleteNotificationChannel(id: String) {
         val nm = NotificationManagerCompat.from(BaseApp.context)
         if (SystemUtils.isNewerThanO()) {
@@ -109,6 +130,9 @@ object NotificationUtil {
         }
     }
 
+    /**
+     * 清除所有通知渠道
+     */
     fun clearNotificationChannel() {
         val nm = NotificationManagerCompat.from(BaseApp.context)
         if (SystemUtils.isNewerThanO()) {
@@ -117,6 +141,7 @@ object NotificationUtil {
             }
         }
     }
+    //</editor-fold>
 
     fun sendTextNotification(
         title: String,
@@ -126,7 +151,7 @@ object NotificationUtil {
         id: Int? = null,
     ): Int? {
         val currentTime = System.currentTimeMillis()
-        val notificationId = id ?: currentTime.toInt()
+        val notificationId = id ?: obtainNextNotificationId()
         val mChannelId = getNotificationChannelId(topicId)
         val notificationHolder =
             NotificationHolder(title, content.toString(), notificationId, topicId, messageId)
@@ -149,7 +174,7 @@ object NotificationUtil {
         messageId: String,
     ): Int? {
         val currentTime = System.currentTimeMillis()
-        val notificationId = id ?: currentTime.toInt()
+        val notificationId = id ?: obtainNextNotificationId()
         val mChannelId = getNotificationChannelId(topicId)
         val notificationHolder =
             NotificationHolder(title, content, notificationId, topicId, messageId)
@@ -180,7 +205,7 @@ object NotificationUtil {
         messageId: String,
     ): Int? {
         val currentTime = System.currentTimeMillis()
-        val notificationId = id ?: currentTime
+        val notificationId = id ?: obtainNextNotificationId()
         val mChannelId = getNotificationChannelId(topicId)
         val notificationHolder = NotificationHolder(
             title,
@@ -231,7 +256,8 @@ object NotificationUtil {
             return null
         }
 
-        //region 通知
+
+        //<editor-fold desc="通知">
         val notificationGroupId = getNotificationGroupId(sendNotificationData.holder.topicId)
         val notification = sendNotificationData.notificationBuilder
             .applyCommonOptions()
@@ -252,7 +278,7 @@ object NotificationUtil {
                     this.setDeleteIntent(
                         PendingIntent.getBroadcast(
                             BaseApp.context,
-                            sendNotificationData.holder.hashCode() + 31 * NOTIFICATION_DELETE_REQUEST_CODE,
+                            sendNotificationData.holder.id * NOTIFICATION_DELETE_REQUEST_CODE,
                             dismissIntent,
                             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                         )
@@ -274,7 +300,7 @@ object NotificationUtil {
                 list.add(sendNotificationData.holder)
             }
         }
-        //endregion
+        //</editor-fold>
 
         val notificationGroupContentList = BaseApp.notifications[notificationGroupId]?.map {
             it.content
@@ -324,7 +350,7 @@ object NotificationUtil {
                     this.setDeleteIntent(
                         PendingIntent.getBroadcast(
                             BaseApp.context,
-                            notificationGroupId.hashCode(),
+                            summaryId,
                             dismissIntent,
                             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                         )
@@ -404,11 +430,18 @@ object NotificationUtil {
         return removed
     }
 
+    /**
+     * 获取摘要通知的ID，如果已有，就返回现有的，否则新分配一个
+     * @param topicId String?
+     * @return Int
+     */
     private fun obtainSummaryNotificationId(topicId: String?): Int {
         if (getNotificationGroupId(topicId) in BaseApp.summaryNotifications) {
             return BaseApp.summaryNotifications[getNotificationGroupId(topicId)]!!
         } else {
-            return Random.nextInt(0, Int.MAX_VALUE)
+            return obtainNextNotificationId()
         }
     }
+
+    private fun obtainNextNotificationId()=BaseApp.notificationIdCounter.getAndIncrement()
 }

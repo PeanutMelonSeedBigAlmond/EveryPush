@@ -47,12 +47,16 @@ import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.simple.ext.SimpleExtPlugin
 import moe.peanutmelonseedbigalmond.push.utils.notification.NotificationHolder
 import org.commonmark.node.Link
+import java.util.concurrent.atomic.AtomicInteger
 
 abstract class BaseApp : Application(), ImageLoaderFactory {
     companion object {
         @SuppressLint("StaticFieldLeak")
         lateinit var context: Context
             private set
+
+        @JvmStatic
+        val notificationIdCounter=AtomicInteger()
 
         val markwon by lazy {
             Markwon.builder(context)
@@ -108,10 +112,14 @@ abstract class BaseApp : Application(), ImageLoaderFactory {
 
         // 已经发送的通知
         // 通知组id, 通知列表
+        @JvmStatic
+        @get:Synchronized
         val notifications = mutableMapOf<String, MutableList<NotificationHolder>>()
 
         // 已发送的摘要消息
         // 通知组id, id
+        @JvmStatic
+        @get:Synchronized
         val summaryNotifications = mutableMapOf<String, Int>()
     }
 
