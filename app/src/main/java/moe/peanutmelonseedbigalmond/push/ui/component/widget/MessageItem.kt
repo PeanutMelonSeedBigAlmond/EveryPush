@@ -1,44 +1,30 @@
 package moe.peanutmelonseedbigalmond.push.ui.component.widget
 
+import android.text.Spanned
+import android.widget.TextView
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import moe.peanutmelonseedbigalmond.push.BaseApp
-import moe.peanutmelonseedbigalmond.push.R
-import moe.peanutmelonseedbigalmond.push.ui.component.widget.preference.getWidgetSurfaceColor
 import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
 import moe.peanutmelonseedbigalmond.push.utils.DatetimeUtils
 import moe.peanutmelonseedbigalmond.push.utils.SpanUtils
@@ -49,173 +35,82 @@ fun MessageItem(
     onDeleteAction: (MessageData) -> Unit,
     onItemClick: (MessageData) -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .clickable { onItemClick(messageData) },
-        colors = CardDefaults.cardColors(containerColor = getWidgetSurfaceColor(elevation = 2.dp)),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp,
-            pressedElevation = 2.dp,
-            focusedElevation = 1.dp,
-        )
-    ) {
-        Column {
-            Box {
-                when (messageData.type) {
-                    MessageData.Type.IMAGE -> {
-                        ImageWithTextContent(
-                            title = null,
-                            content = messageData.title,
-                            imageUrls = listOf(messageData.content),
-                            time = messageData.sendTime,
-                        )
-                    }
-
-                    MessageData.Type.MARKDOWN -> {
-                        val spanned = BaseApp.markwon.toMarkdown(messageData.content)
-                        ImageWithTextContent(
-                            title = messageData.title,
-                            content = spanned,
-                            imageUrls = SpanUtils.findImageUrlFromSpan(spanned),
-                            time = messageData.sendTime
-                        )
-                    }
-
-                    else -> { //text and else
-                        TextContent(
-                            title = messageData.title,
-                            content = messageData.content,
-                            modifier = Modifier.padding(8.dp),
-                            time = messageData.sendTime,
-                        )
-                    }
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                MoreOptionsMenu {
-                    onDeleteAction(messageData)
-                }
-            }
-        }
+    val context = LocalContext.current
+    val content: CharSequence = if (messageData.type == "markdown") {
+        BaseApp.markwon.toMarkdown(messageData.content)
+    } else {
+        messageData.content
     }
-}
+    val secondaryTextColor = MaterialTheme.colorScheme.outline
+    val secondaryTextColorInt = secondaryTextColor.toARGBInt()
 
-@Composable
-private fun TextContent(
-    title: String?,
-    content: CharSequence?,
-    time: Long,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier
+    Row(modifier = Modifier
+        .clip(RoundedCornerShape(8.dp))
+        .fillMaxWidth()
+        .wrapContentHeight()
+        .clickable { onItemClick(messageData) }
+        .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        if (title?.isNotBlank() == true) {
+        if (content is Spanned) {
+            ImagePreviewWidget(imageList = SpanUtils.findImageUrlFromSpan(content))
+            Spacer(modifier = Modifier.width(8.dp))
+        } else if (messageData.type == "image") {
+            ImagePreviewWidget(imageList = listOf(messageData.content))
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+        Column(modifier = Modifier.weight(1f)) {
             Row(
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier
-                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = title,
+                    text = messageData.title,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Black,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+                    maxLines = 2,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = DatetimeUtils.getDateString(LocalContext.current, time),
-                    modifier = Modifier.padding(start = 8.dp, end = 8.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onBackground
+                    text = DatetimeUtils.getDateString(context, messageData.sendTime),
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
-        }
 
-        if (content != null) {
-            Row(
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = content.toString(),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                )
-                if (title == null) {
+            when (messageData.type) {
+                "markdown" -> {
+                    AndroidView(factory = {
+                        val tv = TextView(it)
+                        tv.maxLines = 2
+                        tv.textSize = 12f
+                        tv.setTextColor(secondaryTextColorInt)
+                        return@AndroidView tv
+                    }) {
+                        it.text = content.toString()
+                            .replace(Regex("\n{2,}"), "\n")
+                            .replace('\ufffc',' ')
+                            .trim()
+                    }
+                }
+
+                "image" -> {
                     Text(
-                        text = DatetimeUtils.getDateString(LocalContext.current, time),
-                        modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                        text = "图片",
+                        maxLines = 2,
+                        color = secondaryTextColor,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+
+                else -> {
+                    Text(
+                        text = messageData.content,
+                        maxLines = 2,
+                        color = secondaryTextColor,
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun ImageWithTextContent(
-    title: String?,
-    content: CharSequence?,
-    time: Long,
-    imageUrls: List<String>,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier
-    ) {
-        ImagePreviewWidget(imageList = imageUrls)
-        TextContent(
-            title = title,
-            content = content,
-            modifier = Modifier.padding(8.dp),
-            time = time
-        )
-    }
-}
-
-@Composable
-private fun MoreOptionsMenu(
-    onDeleteAction: () -> Unit,
-) {
-    var dropDownMenuVisible by remember { mutableStateOf(false) }
-    Box(modifier = Modifier.fillMaxHeight()) {
-        IconButton(onClick = { dropDownMenuVisible = true }, modifier = Modifier.size(24.dp)) {
-            Icon(
-                imageVector = Icons.Filled.MoreVert,
-                contentDescription = "More options"
-            )
-        }
-        DropdownMenu(
-            expanded = dropDownMenuVisible,
-            onDismissRequest = { dropDownMenuVisible = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(id = R.string.delete)) },
-                onClick = {
-                    dropDownMenuVisible = false
-                    onDeleteAction()
-                })
         }
     }
 }
@@ -227,27 +122,17 @@ private fun ImagePreviewWidget(imageList: List<String>) {
         ImageWidget(
             imageUrl = imageList[0],
             modifier = Modifier
-                .fillMaxWidth()
-                .height(240.dp)
+                .size(72.dp)
+                .clip(RoundedCornerShape(16.dp))
         )
-        if (imageList.size > 1) {
-            Box(modifier = Modifier.align(Alignment.TopEnd)) {
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .75f),
-                    shape = RoundedCornerShape(bottomStart = 8.dp)
-                ) {
-                    Text(
-                        text = pluralStringResource(
-                            id = R.plurals.tip_image_count,
-                            count = imageList.size,
-                            imageList.size
-                        ),
-                        modifier = Modifier.padding(8.dp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-        }
     }
+}
+
+private fun Color.toARGBInt(): Int {
+    val a = (alpha * 255).toInt()
+    val r = (red * 255).toInt()
+    val g = (green * 255).toInt()
+    val b = (blue * 255).toInt()
+
+    return (a shl 24).or(r shl 16).or(g shl 8).or(b)
 }

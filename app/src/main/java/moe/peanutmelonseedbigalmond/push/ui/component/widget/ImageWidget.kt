@@ -27,7 +27,7 @@ fun ImageWidget(imageUrl: String, modifier: Modifier = Modifier) {
         model = model,
         contentDescription = "Image",
         modifier = modifier,
-        contentScale = ContentScale.FillWidth,
+        contentScale = ContentScale.Crop,
     ) {
         when (painter.state) {
             is AsyncImagePainter.State.Loading -> {
