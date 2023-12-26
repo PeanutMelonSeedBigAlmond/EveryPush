@@ -327,6 +327,6 @@ private fun sortTopicsByLatestMessageSendTimeDesc(data: List<TopicData>): List<T
     return data.sortedWith { o1, o2 ->
         val o1SendTime = o1.latestMessage?.sendTime ?: -1L
         val o2SendTime = o2.latestMessage?.sendTime ?: -1L
-        return@sortedWith (o2SendTime - o1SendTime).toInt()
+        return@sortedWith (o1SendTime - o2SendTime).toInt()
     }
 }
