@@ -1,7 +1,6 @@
 package moe.peanutmelonseedbigalmond.push.ui.component.widget
 
 import android.text.Spanned
-import android.widget.TextView
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,10 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import moe.peanutmelonseedbigalmond.push.BaseApp
 import moe.peanutmelonseedbigalmond.push.ui.data.MessageData
 import moe.peanutmelonseedbigalmond.push.utils.DatetimeUtils
@@ -42,7 +39,6 @@ fun MessageItem(
         messageData.content
     }
     val secondaryTextColor = MaterialTheme.colorScheme.outline
-    val secondaryTextColorInt = secondaryTextColor.toARGBInt()
 
     Row(modifier = Modifier
         .clip(RoundedCornerShape(8.dp))
@@ -79,18 +75,12 @@ fun MessageItem(
 
             when (messageData.type) {
                 "markdown" -> {
-                    AndroidView(factory = {
-                        val tv = TextView(it)
-                        tv.maxLines = 2
-                        tv.textSize = 12f
-                        tv.setTextColor(secondaryTextColorInt)
-                        return@AndroidView tv
-                    }) {
-                        it.text = content.toString()
-                            .replace(Regex("\n{2,}"), "\n")
-                            .replace('\ufffc',' ')
-                            .trim()
-                    }
+                    Text(
+                        text = SpanUtils.uniformString(content),
+                        maxLines = 2,
+                        color = secondaryTextColor,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
 
                 "image" -> {
@@ -126,13 +116,4 @@ private fun ImagePreviewWidget(imageList: List<String>) {
                 .clip(RoundedCornerShape(16.dp))
         )
     }
-}
-
-private fun Color.toARGBInt(): Int {
-    val a = (alpha * 255).toInt()
-    val r = (red * 255).toInt()
-    val g = (green * 255).toInt()
-    val b = (blue * 255).toInt()
-
-    return (a shl 24).or(r shl 16).or(g shl 8).or(b)
 }

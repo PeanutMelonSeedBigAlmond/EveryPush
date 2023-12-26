@@ -17,4 +17,10 @@ object SpanUtils {
         drawSpan.sortBy(spanned::getSpanStart)
         return drawSpan.map { it.drawable.destination }
     }
+
+    fun uniformString(charSequence: CharSequence):String{
+        return charSequence.toString().replace(Regex("\n{2,}"),"\n")
+            .replace('\ufffc',' ')
+            .trim()
+    }
 }
