@@ -1,8 +1,21 @@
-query ListDevice($token:String!){
-    devices:listDevices(token:$token){
-        id
-        name
-        type
-        deviceId
+query($token:String!,$count:Int!,$after:String){
+    user(token:$token){
+        devices(after:$after,count:$count){
+            items{
+                type
+                name
+                id
+                deviceId
+                cursor
+            }
+            pageInfo{
+                hasNextPage
+                hasPreviousPage
+                count
+                total
+                firstCursor
+                lastCursor
+            }
+        }
     }
 }

@@ -77,13 +77,15 @@ class Client(baseUrl: String) {
         return@withContext doGraphqlQuery<PingResponse>(readQueryStatement("ping"))
     }
 
-    suspend fun listDevices() = withContext(Dispatchers.IO) {
+    suspend fun listDevices(count:Int=20,after:String?=null) = withContext(Dispatchers.IO) {
         val data = doGraphqlQuery<JsonObject>(
             readQueryStatement("list_device"), variables = mapOf(
-                "token" to token
+                "token" to token,
+                "after" to after,
+                "count" to count
             )
         )
-        return@withContext data.getAsJsonArray("devices").map { it.toObject(DeviceResponse::class) }
+        return@withContext data.getAsJsonObject("user").getAsJsonObject("devices").toObject(DeviceResponse::class)
     }
 
     suspend fun registerDevice(deviceId: String, name: String) = withContext(Dispatchers.IO) {
