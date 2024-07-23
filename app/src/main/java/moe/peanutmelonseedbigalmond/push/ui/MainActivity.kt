@@ -124,9 +124,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispa
                 LaunchedEffect(key1 = Unit) {
                     Client.userToken = ServerConfig.token
                     Client.serverAddress = ServerConfig.serverUrl
-                    if (Client.serverAddress.isEmpty()){
-                        Client.serverAddress="http://127.0.0.1"
-                    }
                 }
             }
         }

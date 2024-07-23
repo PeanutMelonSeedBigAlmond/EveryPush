@@ -4,7 +4,7 @@ import com.dylanc.mmkv.MMKVOwner
 import com.dylanc.mmkv.mmkvString
 
 object ServerConfig : MMKVOwner("RemoteConfig") {
-    var serverUrl by mmkvString("")
+    var serverUrl by mmkvString("http://127.0.0.1")
     var token by mmkvString("")
 
     fun saveServerConfig(token: String, serverAddress: String) {
