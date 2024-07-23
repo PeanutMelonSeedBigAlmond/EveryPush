@@ -168,6 +168,7 @@ object NotificationUtil {
             .setSmallIcon(R.drawable.ic_notifications)
             .setContentIntent(pendingIntent)
             .setWhen(System.currentTimeMillis())
+            .setAutoCancel(true)
             .build()
         notificationManagerCompat.notify(notificationBean.id, notification)
 
@@ -241,6 +242,7 @@ object NotificationUtil {
             .setSmallIcon(R.drawable.ic_notifications)
             .setContentIntent(pendingIntent)
             .setWhen(System.currentTimeMillis())
+            .setAutoCancel(true)
             .build()
         notificationManagerCompat.notify(notificationId, notification)
     }
