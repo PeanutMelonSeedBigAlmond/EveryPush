@@ -45,7 +45,6 @@ import io.noties.markwon.image.coil.CoilImagesPlugin
 import io.noties.markwon.image.coil.CoilImagesPlugin.CoilStore
 import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.simple.ext.SimpleExtPlugin
-import moe.peanutmelonseedbigalmond.push.utils.notification.NotificationHolder
 import org.commonmark.node.Link
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -109,18 +108,6 @@ abstract class BaseApp : Application(), ImageLoaderFactory {
                 }, context.imageLoader))
                 .build()
         }
-
-        // 已经发送的通知
-        // 通知组id, 通知列表
-        @JvmStatic
-        @get:Synchronized
-        val notifications = mutableMapOf<String, MutableList<NotificationHolder>>()
-
-        // 已发送的摘要消息
-        // 通知组id, id
-        @JvmStatic
-        @get:Synchronized
-        val summaryNotifications = mutableMapOf<String, Int>()
     }
 
     override fun onCreate() {

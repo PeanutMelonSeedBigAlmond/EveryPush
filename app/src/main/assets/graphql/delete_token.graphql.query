@@ -1,8 +1,0 @@
-mutation DeleteToken($id:ID!,$token:String!){
-    token:deleteToken(id:$id,token:$token){
-        id
-        name
-        token
-        generatedAt
-    }
-}

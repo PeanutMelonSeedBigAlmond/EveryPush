@@ -1,293 +1,179 @@
 package moe.peanutmelonseedbigalmond.push.network
 
 import com.google.gson.Gson
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.haroldadmin.cnradapter.NetworkResponseAdapterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import moe.peanutmelonseedbigalmond.push.BaseApp
-import moe.peanutmelonseedbigalmond.push.network.exception.ServerException
-import moe.peanutmelonseedbigalmond.push.network.response.DeviceResponse
-import moe.peanutmelonseedbigalmond.push.network.response.GenericUserInfoResponse
-import moe.peanutmelonseedbigalmond.push.network.response.GraphqlError
-import moe.peanutmelonseedbigalmond.push.network.response.KeyResponse
-import moe.peanutmelonseedbigalmond.push.network.response.MessageResponse
-import moe.peanutmelonseedbigalmond.push.network.response.PingResponse
-import moe.peanutmelonseedbigalmond.push.network.response.TopicDetailResponse
-import moe.peanutmelonseedbigalmond.push.network.response.TopicResponse
+import moe.peanutmelonseedbigalmond.push.exception.ApiException
+import moe.peanutmelonseedbigalmond.push.network.response.ResponseWrapper
 import moe.peanutmelonseedbigalmond.push.network.response.UserLoginResponse
-import okhttp3.MediaType.Companion.toMediaType
+import moe.peanutmelonseedbigalmond.push.utils.DeviceUtil
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
-import java.nio.charset.Charset
-import kotlin.reflect.KClass
 
-class Client(baseUrl: String) {
-    var token = ""
-    private val client = OkHttpClient.Builder()
-        .build()
+object Client {
+    var serverAddress = "http://127.0.0.1"
+        set(value) {
+            if (value != field) {
+                field = value
+                service = Retrofit.Builder()
+                    .client(okhttpClient)
+                    .baseUrl(value)
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .build()
+                    .create(Api::class.java)
+            }
+        }
+    var userToken = ""
+        set(value) {
+            if (field != value) {
+                field = value
+            }
+        }
+    private val gson = Gson()
+    private val okhttpClient = OkHttpClient.Builder().build()
     private var service = Retrofit.Builder()
-        .baseUrl(baseUrl)
-        .client(client)
-        .addCallAdapterFactory(NetworkResponseAdapterFactory())
-        .addConverterFactory(GsonConverterFactory.create())
-        .addConverterFactory(ScalarsConverterFactory.create())
+        .client(okhttpClient)
+        .baseUrl(serverAddress)
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
         .create(Api::class.java)
-    private val gson = Gson()
-
-    @Throws(ServerException::class)
-    private suspend inline fun <reified T : Any> doGraphqlQuery(
-        query: String,
-        operationName: String = "",
-        variables: Map<String, Any?> = emptyMap()
-    ) =
-        withContext(Dispatchers.IO) {
-            val mediaType = "application/json".toMediaType()
-            val requestMap = mapOf(
-                "query" to query,
-                "operationName" to operationName,
-                "variables" to variables
-            )
-            val body = gson.toJson(requestMap).toRequestBody(mediaType)
-
-            val response = service.graphql(body)
-            response.getAsJsonArray("errors")
-                ?.map { it.toObject(GraphqlError::class) }
-                ?.firstOrNull()
-                ?.run { throw ServerException(message) }
-            return@withContext response.getAsJsonObject("data")!!
-                .toObject<T>(T::class)
-        }
-
-    suspend fun userLogin(fcmToken: String) = withContext(Dispatchers.IO) {
-        val data = doGraphqlQuery<JsonObject>(
-            query = readQueryStatement("user_login"),
-            variables = mapOf("firebaseToken" to fcmToken)
-        ).getAsJsonObject("login")
-
-        return@withContext gson.fromJson<UserLoginResponse>(data, UserLoginResponse::class.java)
-    }
 
     suspend fun ping() = withContext(Dispatchers.IO) {
-        return@withContext doGraphqlQuery<PingResponse>(readQueryStatement("ping"))
+        val response = service.pingServer().body()
+        require(response == "pong")
     }
 
-    suspend fun listDevices(count:Int=20,after:String?=null) = withContext(Dispatchers.IO) {
-        val data = doGraphqlQuery<JsonObject>(
-            readQueryStatement("list_device"), variables = mapOf(
-                "token" to token,
-                "after" to after,
-                "count" to count
-            )
-        )
-        return@withContext data.getAsJsonObject("user").getAsJsonObject("devices").toObject(DeviceResponse::class)
+    suspend fun login(idToken: String): UserLoginResponse = withContext(Dispatchers.IO) {
+        val response = service.login(idToken, "Android", DeviceUtil.getDeviceName()).body()
+        return@withContext response
     }
 
-    suspend fun registerDevice(deviceId: String, name: String) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<DeviceResponse>(
-            readQueryStatement("device_register"),
-            variables = mapOf(
-                "params" to mapOf(
-                    "token" to token,
-                    "deviceId" to deviceId,
-                    "type" to "android",
-                    "name" to name
-                )
-            )
-        )
+    suspend fun listDevices(pageIndex: Int = 0, pageSize: Int = 20) = withContext(Dispatchers.IO) {
+        val response = service.listDevices(userToken, pageIndex, pageSize).body()
+        return@withContext response
+    }
+
+    suspend fun registerDevice(deviceToken: String) = withContext(Dispatchers.IO) {
+        service.registerDevice(deviceToken, userToken, "Android", DeviceUtil.getDeviceName())
+            .body()
+    }
+
+    suspend fun renameDevice(id: Long, name: String) = withContext(Dispatchers.IO) {
+        service.renameDevice(userToken, id, name).body()
     }
 
     suspend fun removeDevice(id: Long) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<DeviceResponse>(
-            readQueryStatement("remove_device"),
-            variables = mapOf(
-                "token" to token,
-                "id" to id
-            )
-
-        )
+        service.removeDevice(id, userToken).body()
     }
 
-    suspend fun renameDevice(id: Long, newName: String) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<DeviceResponse>(
-            readQueryStatement("rename_device"),
-            variables = mapOf(
-                "params" to mapOf(
-                    "token" to token,
-                    "id" to id,
-                    "newName" to newName
-                )
-            )
-        )
+    suspend fun listKey(pageIndex: Int = 0, pageSize: Int = 20) = withContext(Dispatchers.IO) {
+        val response = service.listKey(userToken, pageIndex, pageSize).body()
+        return@withContext response
+    }
+
+    suspend fun removeKey(id: Long) = withContext(Dispatchers.IO) {
+        val response = service.removeKey(id, userToken).body()
+        return@withContext response
+    }
+
+    suspend fun renameKey(id: Long, name: String) = withContext(Dispatchers.IO) {
+        val response = service.renameKey(userToken, id, name).body()
+        return@withContext response
     }
 
     suspend fun generateKey() = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("generate_key"),
-            variables = mapOf(
-                "token" to token
-            )
-        ).getAsJsonObject("token")
-            .toObject(KeyResponse::class)
+        val response = service.generateKey(userToken).body()
+        return@withContext response
     }
 
-    suspend fun listToken() = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("list_token"),
-            variables = mapOf(
-                "token" to token
-            )
-        ).getAsJsonArray("tokenList")
-            .map { it.toObject(KeyResponse::class) }
+    suspend fun resetKey(id: Long) = withContext(Dispatchers.IO) {
+        val response = service.resetKey(id, userToken).body()
+        return@withContext response
     }
 
-    suspend fun reGenerateToken(id: Long) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("regenerate_token"),
-            variables = mapOf(
-                "token" to token,
-                "id" to id
-            )
-        ).getAsJsonObject("token")
-            .toObject(KeyResponse::class)
+    suspend fun listMessageGroup(pageIndex: Int = 0, pageSize: Int = 20) =
+        withContext(Dispatchers.IO) {
+            val response = service.listMessageGroup(userToken, pageIndex, pageSize).body()
+            return@withContext response
+        }
+
+    suspend fun renameMessageGroup(id: String, name: String) = withContext(Dispatchers.IO) {
+        val response = service.renameMessageGroup(id, userToken, name).body()
+        return@withContext response
     }
 
-    suspend fun revokeToken(id: Long) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("delete_token"),
-            variables = mapOf(
-                "token" to token,
-                "id" to id
-            )
-        ).getAsJsonObject("token")
-            .toObject(KeyResponse::class)
+    suspend fun removeMessageGroup(id: String) = withContext(Dispatchers.IO) {
+        val response = service.removeMessageGroup(id, userToken).body()
+        return@withContext response
     }
 
-    suspend fun renameToken(id: Long, newName: String) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("rename_token"),
-            variables = mapOf(
-                "param" to mapOf(
-                    "token" to token,
-                    "id" to id,
-                    "newName" to newName
-                )
-            )
-        ).getAsJsonObject("token")
-            .toObject(KeyResponse::class)
+    suspend fun createMessageGroup(id: String, name: String) = withContext(Dispatchers.IO) {
+        val response = service.createMessageGroup(userToken, id, name).body()
+        return@withContext response
     }
 
-    suspend fun getUserInfo() = withContext(Dispatchers.IO) {
-        doGraphqlQuery<GenericUserInfoResponse>(
-            readQueryStatement("generic_user_info"),
-            variables = mapOf(
-                "token" to token
-            )
-        )
+    suspend fun syncMessageGroups(clientMessageGroups: Map<String, String>) =
+        withContext(Dispatchers.IO) {
+            val response = service.syncMessageGroups(
+                userToken,
+                ids = clientMessageGroups.keys.toList(),
+                names = clientMessageGroups.values.toList()
+            ).body()
+            return@withContext response
+        }
+
+    suspend fun messageGroupInfo(id: String) = withContext(Dispatchers.IO) {
+        val response = service.messageGroupInfo(id, userToken).body()
+        return@withContext response
     }
 
-    suspend fun listTopicAndLatestMessage() = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("list_topic_and_latest_message"),
-            variables = mapOf(
-                "token" to token
-            )
-        ).getAsJsonArray("topics")
-            .map { it.toObject(TopicResponse::class) }
-    }
+    suspend fun listMessage(groupId: String?, pageIndex: Int = 0, pageSize: Int = 20) =
+        withContext(Dispatchers.IO) {
+            return@withContext service.listMessages(groupId, userToken, pageIndex, pageSize).body()
+        }
 
-    suspend fun topicDetail(topicId: String?) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("topic_detail"),
-            variables = mapOf(
-                "token" to token,
-                "topicId" to topicId
-            )
-        ).getAsJsonObject("topic")
-            .toObject(TopicDetailResponse::class)
+    suspend fun listAllMessage(pageIndex: Int = 0, pageSize: Int = 20) =
+        withContext(Dispatchers.IO) {
+            return@withContext service.listAllMessages(userToken, pageIndex, pageSize).body()
+        }
+
+    suspend fun messageDetail(id: Long) = withContext(Dispatchers.IO) {
+        val response = service.messageDetail(id, userToken).body()
+        return@withContext response
     }
 
     suspend fun deleteMessage(id: Long) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("delete_message"),
-            variables = mapOf(
-                "token" to token,
-                "id" to id
-            )
-        ).getAsJsonObject("message")
-            .toObject(MessageResponse::class)
+        val response = service.deleteMessage(id, userToken).body()
+        return@withContext response
     }
 
-    suspend fun pushMessage(
-        pushToken: String,
-        text: String,
-        title: String? = null,
-        type: String? = "text",
-        topicId: String? = null
-    ) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("push_message"),
-            variables = mapOf(
-                "params" to mapOf(
-                    "pushToken" to pushToken,
-                    "text" to text,
-                    "title" to title,
-                    "type" to type,
-                    "topicId" to topicId,
-                )
-            )
-        ).getAsJsonObject("message")
+    suspend fun userInfo() = withContext(Dispatchers.IO) {
+        val response = service.userInfo(userToken).body()
+        return@withContext response
     }
 
-    suspend fun deleteTopic(
-        topicId: String
-    ) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("delete_topic"),
-            variables = mapOf(
-                "id" to topicId,
-                "token" to token
-            )
-        ).getAsJsonArray("topics")
+    suspend fun userClients() = withContext(Dispatchers.IO) {
+        val response = service.userClients(userToken).body()
+        return@withContext response
     }
 
-    suspend fun addTopic(
-        topicId: String,
-        topicName: String,
-    ) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("add_topic"),
-            variables = mapOf(
-                "id" to topicId,
-                "name" to topicName,
-                "token" to token
-            )
-        ).getAsJsonObject("topic")
+    suspend fun logoutOthers() = withContext(Dispatchers.IO) {
+        val response = service.logoutOthers(userToken).body()
+        return@withContext response
     }
 
-    suspend fun queryMessage(id: Long) = withContext(Dispatchers.IO) {
-        doGraphqlQuery<JsonObject>(
-            readQueryStatement("query_message"),
-            variables = mapOf(
-                "id" to id,
-                "token" to token,
-            )
-        ).getAsJsonObject("message")
-            .toObject(MessageResponse::class)
+    suspend fun logout(token: String = userToken) = withContext(Dispatchers.IO) {
+        val response = service.logout(token).body()
+        return@withContext response
     }
 
-    private fun readQueryStatement(name: String): String {
-        return BaseApp.context.assets.open("graphql/$name.graphql.query").use {
-            return@use it.readBytes().toString(Charset.defaultCharset())
+    @Throws(ApiException::class)
+    private inline fun <reified T> ResponseWrapper<T>.body(): T {
+        if (errorCode != "00000") {
+            throw ApiException(errorCode, message!!)
+        } else {
+            return data
         }
-    }
-
-    private fun <T : Any> JsonElement.toObject(type: KClass<T>): T {
-        return gson.fromJson(this, type.java)
     }
 }

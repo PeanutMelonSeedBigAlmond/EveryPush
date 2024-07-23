@@ -1,6 +1,0 @@
-mutation CreateTopic($id:ID!,$name:String!,$token:String!){
-    topic:createTopic(id:$id,name:$name,token:$token){
-        id
-        name
-    }
-}

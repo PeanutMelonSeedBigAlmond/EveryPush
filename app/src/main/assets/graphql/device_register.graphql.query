@@ -1,8 +1,0 @@
-mutation RegisterDevice($params:DeviceRegisterParams!){
-    registerDevice(param:$params){
-        id
-        deviceId
-        name
-        type
-    }
-}

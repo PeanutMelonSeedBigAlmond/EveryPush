@@ -7,8 +7,11 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
-    id("kotlin-kapt")
+//    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("com.google.firebase.crashlytics")
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("androidx.room")
 }
 
 val keyPropertiesFile = File(projectDir, "signing.properties")
@@ -41,7 +44,6 @@ android {
     }
 
     buildFeatures {
-        dataBinding = true
         viewBinding = true
         compose = true
     }
@@ -90,61 +92,67 @@ android {
         jvmToolchain(11)
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.8"
+//    composeOptions {
+//        kotlinCompilerExtensionVersion = "1.4.8"
+//    }
+    room{
+        schemaDirectory("$projectDir/schemas")
     }
     namespace = "moe.peanutmelonseedbigalmond.push"
 }
 
 val markwonVersion = "4.6.2"
 val emojiVersion = "1.4.0"
+var roomVersion="2.6.1"
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.10.0")
-    implementation("androidx.activity:activity:1.6.0-alpha05")
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.core:core:1.13.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.activity:activity-ktx:1.9.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    implementation("androidx.paging:paging-compose:1.0.0-alpha14")
+    implementation("androidx.paging:paging-compose:3.3.0")
 
     //region Compose 组件
-    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.10.01"))
-    implementation("androidx.activity:activity-compose:1.8.0")
+    implementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.navigation:navigation-compose:2.7.4")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.15.0")
     implementation("com.google.accompanist:accompanist-insets:0.15.0")
     implementation("com.google.accompanist:accompanist-insets-ui:0.15.0")
-//    implementation "androidx.compose.runtime:runtime:1.5.1"
-//    implementation "androidx.compose.runtime:runtime-livedata:1.5.1"
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
     //endregion
 
     //region Google 服务组件
-    implementation(platform("com.google.firebase:firebase-bom:30.3.2"))
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.firebaseui:firebase-ui-auth:7.2.0")
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
-    implementation("com.google.android.gms:play-services-location:21.0.1")
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0-beta01")
+    implementation("androidx.credentials:credentials:1.3.0-beta01")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
     //endregion
 
     //region 网络相关组件
-    implementation("io.coil-kt:coil-compose:2.4.0")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.4")
-    implementation("com.squareup.okio:okio:3.3.0")
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.github.haroldadmin:NetworkResponseAdapter:4.2.2")
+    implementation("com.squareup.okio:okio:3.8.0")
+    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.10.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     //endregion
 
@@ -167,9 +175,17 @@ dependencies {
 
     implementation("com.github.DylanCaiCoding.Longan:longan:1.1.1")
     implementation("com.github.DylanCaiCoding:MMKV-KTX:1.2.16")
-}
 
-configurations {
+    // room
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+
+    // 其他
+    implementation("com.github.nanchen2251:CompressHelper:1.0.5"){
+        exclude("com.android.support","support-compat")
+        exclude("com.android.support","support-media-compat")
+    }
 }
 
 fun generateVersionCode(): Int {

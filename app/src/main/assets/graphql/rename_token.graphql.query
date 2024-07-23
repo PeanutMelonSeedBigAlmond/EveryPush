@@ -1,8 +1,0 @@
-mutation RenameToken($param:PushTokenRenameParams!){
-    token:renameToken(params:$param){
-        id
-        name
-        token
-        generatedAt
-    }
-}

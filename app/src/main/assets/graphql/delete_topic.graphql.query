@@ -1,6 +1,0 @@
-mutation DeleteTopic($id:ID!,$token:String!){
-    topics:deleteTopic(id:$id,token:$token){
-        name
-        id
-    }
-}

@@ -2,7 +2,8 @@ package moe.peanutmelonseedbigalmond.push.network.response
 
 data class KeyResponse(
     val id: Long,
-    val token: String,
     val name: String,
-    val generatedAt: Long,
+    val key: String,
+    val createdAt: Long,
+    val uid: String,
 )

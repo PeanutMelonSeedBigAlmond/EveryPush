@@ -1,8 +1,0 @@
-query ListToken($token:String!){
-    tokenList:listToken(token:$token){
-        id
-        name
-        token
-        generatedAt
-    }
-}

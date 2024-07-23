@@ -1,8 +1,0 @@
-mutation createKey($token:String!){
-    token:createToken(token:$token){
-        id
-        token
-        name
-        generatedAt
-    }
-}

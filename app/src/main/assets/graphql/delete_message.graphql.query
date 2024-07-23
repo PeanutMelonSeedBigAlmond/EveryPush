@@ -1,9 +1,0 @@
-mutation DeleteMessage($token:String!,$id:ID!){
-    message:deleteMessage(token:$token,id:$id){
-        id
-        title
-        text
-        type
-        sendAt
-    }
-}
