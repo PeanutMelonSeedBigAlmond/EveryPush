@@ -132,7 +132,7 @@ object NotificationUtil {
 
     fun renameNotificationChannelGroup(messageGroupId: String, newTitle: String) {
         createNotificationChannelGroupByTopicId(
-            "$messageGroupId.$notificationChannelGroupIdSuffix",
+            messageGroupId,
             newTitle
         )
     }
