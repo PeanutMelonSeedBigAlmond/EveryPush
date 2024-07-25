@@ -56,7 +56,7 @@ fun LoginFollowingPage(
                         }, onLoginSuccess = {
                             ServerConfig.saveServerConfig(it, viewModel.serverAddress)
                             parentNavHostController.navigate(NavRoutes.mainPage) {
-                                popUpTo(NavRoutes.chooseServerPage) {
+                                popUpTo(NavRoutes.loginFollowingPage) {
                                     inclusive = true
                                 }
                             }

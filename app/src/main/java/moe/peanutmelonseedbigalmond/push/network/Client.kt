@@ -14,7 +14,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 object Client {
     var serverAddress = "http://127.0.0.1"
         set(value) {
-            if (value != field) {
+            if (
+                value != field && value.isNotBlank()
+                && (value.startsWith("http://") || value.startsWith("https://"))
+            ) {
                 field = value
                 service = Retrofit.Builder()
                     .client(okhttpClient)
