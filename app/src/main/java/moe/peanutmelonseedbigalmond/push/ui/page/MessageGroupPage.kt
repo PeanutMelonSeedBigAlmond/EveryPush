@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -39,7 +38,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -286,19 +284,15 @@ private fun RenameMessageGroupDialog(
     onDismissRequest: () -> Unit = {},
     onConfirm: (messageGroup: MessageGroup, name: String) -> Unit = { _, _ -> }
 ) {
-    var id by remember { mutableStateOf(messageGroup.groupId) }
-    val idValid by remember {
-        derivedStateOf {
-            id.all { it.isDigit() || it.isLetter() } && id.isNotBlank()
-        }
-    }
+    var name by remember { mutableStateOf(messageGroup.name) }
+    val nameValid by remember { derivedStateOf { name.isNotBlank() } }
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(messageGroup, id) },
-                enabled = idValid
+                onClick = { onConfirm(messageGroup, name) },
+                enabled = nameValid
             ) {
                 Text(text = "确定")
             }
@@ -312,25 +306,18 @@ private fun RenameMessageGroupDialog(
             ) {
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = messageGroup.name,
-                    onValueChange = { },
+                    value = name,
+                    onValueChange = { name = it },
                     label = { Text(text = "名称") },
                     maxLines = 1
                 )
 
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = id,
-                    onValueChange = { id = it },
+                    value = messageGroup.groupId,
                     label = { Text(text = "ID") },
-                    isError = !idValid,
                     maxLines = 1,
-                    supportingText = if (!idValid) {
-                        {
-                            Text(text = "ID 不能为空且只能由数字和字母组成")
-                        }
-                    } else null,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+                    onValueChange = {},
                     enabled = false
                 )
             }
