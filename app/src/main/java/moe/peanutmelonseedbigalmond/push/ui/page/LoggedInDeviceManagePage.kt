@@ -150,6 +150,7 @@ fun LoggedInDeviceManagePage(
                                     try {
                                         refreshing = true
                                         viewmodel.logout(items[it].token)
+                                        viewmodel.refreshLoggedInDevices()
                                     } catch (_: CancellationException) {
                                     } catch (e: Exception) {
                                         e.printStackTrace()
@@ -189,6 +190,7 @@ fun LoggedInDeviceManagePage(
                                     try {
                                         refreshing = true
                                         viewmodel.logoutOthers()
+                                        viewmodel.refreshLoggedInDevices()
                                     } catch (_: CancellationException) {
                                     } catch (e: Exception) {
                                         e.printStackTrace()
