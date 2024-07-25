@@ -210,15 +210,13 @@ fun SettingsPage(parentNavHostController: NavHostController, modifier: Modifier 
                 onClick = {
                     coroutineScope.launch {
                         viewmodel.logout()
-                    }.invokeOnCompletion {
-                        confirmLogout = false
-                        it?.printStackTrace()
-                        ServerConfig.serverUrl = ""
-                        ServerConfig.token = ""
-                        parentNavHostController.navigate(NavRoutes.loginFollowingPage) {
-                            popUpTo(parentNavHostController.currentBackStackEntry?.destination?.route!!) {
-                                inclusive = true
-                            }
+                    }
+                    confirmLogout = false
+                    ServerConfig.serverUrl = ""
+                    ServerConfig.token = ""
+                    parentNavHostController.navigate(NavRoutes.loginFollowingPage) {
+                        popUpTo(parentNavHostController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
                         }
                     }
                 }) {
