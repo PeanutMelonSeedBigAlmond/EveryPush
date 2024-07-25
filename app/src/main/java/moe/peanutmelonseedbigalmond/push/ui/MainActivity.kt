@@ -16,14 +16,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.navDeepLink
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import moe.peanutmelonseedbigalmond.push.BuildConfig
 import moe.peanutmelonseedbigalmond.push.network.Client
 import moe.peanutmelonseedbigalmond.push.repository.config.ServerConfig
@@ -52,12 +55,36 @@ class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispa
         }
     }
 
+    private val intentChannel= Channel<Intent>(4,BufferOverflow.DROP_OLDEST)
+    private val intentFlow=intentChannel.receiveAsFlow()
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        intentChannel.trySend(intent)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             EveryPushTheme {
                 val navController = rememberNavController()
+
+                LaunchedEffect(key1 = Unit) {
+                    intentFlow.collect{
+                        if (it.action==Intent.ACTION_VIEW&&it.data?.scheme=="everypush"){
+                            val uri=it.data?:return@collect
+                            if (uri.path=="/pages/message"){
+                                val messageId=uri.getQueryParameter("mesageId")?.toLongOrNull()?:return@collect
+                                navController.navigate(
+                                    navController.graph.findNode(NavRoutes.messageShowPage)!!.id,
+                                    args = bundleOf("messageId" to messageId)
+                                )
+                            }
+                        }
+                    }
+                }
+
                 NavHost(
                     navController = navController,
                     startDestination = if (ServerConfig.isConfigValid()) {
@@ -99,9 +126,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispa
                                 type = NavType.LongType
                             }
                         ),
-                        deepLinks = arrayListOf(navDeepLink {
-                            uriPattern = "everypush://moe.peanutmelonseedbigalmond.push/pages/message?mesageId={messageId}"
-                        })
                     ) {
                         val messageId = it.arguments!!.getLong("messageId")
                         MessageShowPage(

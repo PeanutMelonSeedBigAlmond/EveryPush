@@ -23,7 +23,7 @@
             android:name=".ui.MainActivity"
             android:enableOnBackInvokedCallback="true"
             android:exported="true"
-            android:launchMode="singleInstance">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,6 +31,7 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT"/>
                 <data
                     android:host="moe.peanutmelonseedbigalmond.push"
                     android:scheme="everypush" />
