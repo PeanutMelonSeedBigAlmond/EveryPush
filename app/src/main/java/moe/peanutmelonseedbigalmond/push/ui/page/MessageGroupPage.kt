@@ -14,7 +14,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -23,7 +22,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
@@ -87,20 +85,12 @@ fun MessageGroupPage(parentNavHostController: NavHostController, modifier: Modif
             }
         }
     )
-    var addMessageGroupDialogShow by remember { viewModel.addMessageGroupDialogShow }
     var currentRenamingMessageGroup by remember { viewModel.currentRenamingMessageGroup }
 
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(title = { Text(text = "消息组") }, actions = {
-                IconButton(onClick = { addMessageGroupDialogShow = true }) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = null,
-                    )
-                }
-            })
+            TopAppBar(title = { Text(text = "消息组") })
         }
     ) {
         Box(
@@ -254,30 +244,6 @@ fun MessageGroupPage(parentNavHostController: NavHostController, modifier: Modif
         }
     }
 
-    if (addMessageGroupDialogShow) {
-        AddMessageGroupDialog(onDismissRequest = {
-            addMessageGroupDialogShow = false
-        }, onConfirm = { id, name ->
-            addMessageGroupDialogShow = false
-            coroutineScope.launch {
-                refreshing = true
-                try {
-                    viewModel.addMessageGroup(id, name)
-                    messageGroupList.refresh()
-                    refreshing = false
-                } catch (_: CancellationException) {
-                    refreshing = false
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    launch {
-                        snackBarStateHost.showSnackbar(e.localizedMessage ?: e.toString())
-                    }
-                    refreshing = false
-                }
-            }
-            addMessageGroupDialogShow = false
-        })
-    }
     if (currentRenamingMessageGroup != null) {
         RenameMessageGroupDialog(messageGroup = currentRenamingMessageGroup!!, onDismissRequest = {
             currentRenamingMessageGroup = null
@@ -311,79 +277,6 @@ fun MessageGroupPage(parentNavHostController: NavHostController, modifier: Modif
             e.printStackTrace()
         }
     }
-}
-
-@Composable
-private fun AddMessageGroupDialog(
-    modifier: Modifier = Modifier,
-    onDismissRequest: () -> Unit = {},
-    onConfirm: (id: String, name: String) -> Unit = { _, _ -> }
-) {
-    var id by remember { mutableStateOf("") }
-    var name by remember { mutableStateOf("") }
-    val idValid by remember {
-        derivedStateOf {
-            id.all { it.isDigit() || it.isLetter() } && id.isNotBlank()
-        }
-    }
-    val nameValid by remember {
-        derivedStateOf {
-            name.isNotBlank()
-        }
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        confirmButton = {
-            TextButton(
-                onClick = { onConfirm(id.trim(), name.trim()) },
-                enabled = nameValid && idValid
-            ) {
-                Text(text = "确定")
-            }
-        },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(text = "名称") },
-                    isError = !nameValid,
-                    maxLines = 1,
-                    supportingText = if (!nameValid) {
-                        {
-                            Text(text = "名称不能为空")
-                        }
-                    } else null
-                )
-
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = id,
-                    onValueChange = { id = it },
-                    label = { Text(text = "ID") },
-                    isError = !idValid,
-                    maxLines = 1,
-                    supportingText = if (!idValid) {
-                        {
-                            Text(text = "ID 不能为空且只能由数字和字母组成")
-                        }
-                    } else null,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
-                )
-            }
-        },
-        title = {
-            Text(text = "新建消息组")
-        },
-        modifier = modifier
-    )
 }
 
 @Composable

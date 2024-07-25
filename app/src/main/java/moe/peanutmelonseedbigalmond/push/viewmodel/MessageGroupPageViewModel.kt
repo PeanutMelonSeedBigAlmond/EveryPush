@@ -18,12 +18,7 @@ class MessageGroupPageViewModel : ViewModel() {
     }.flow.cachedIn(viewModelScope)
     val refreshing = mutableStateOf(false)
 
-    val addMessageGroupDialogShow = mutableStateOf(false)
     val currentRenamingMessageGroup = mutableStateOf<MessageGroup?>(null)
-
-    suspend fun addMessageGroup(id: String, name: String) {
-        Client.createMessageGroup(id, name)
-    }
 
     suspend fun deleteMessageGroup(id: String) {
         Client.removeMessageGroup(id)

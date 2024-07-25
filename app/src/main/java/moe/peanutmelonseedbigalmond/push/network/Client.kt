@@ -111,11 +111,6 @@ object Client {
         return@withContext response
     }
 
-    suspend fun createMessageGroup(id: String, name: String) = withContext(Dispatchers.IO) {
-        val response = service.createMessageGroup(userToken, id, name).body()
-        return@withContext response
-    }
-
     suspend fun syncMessageGroups(clientMessageGroups: Map<String, String>) =
         withContext(Dispatchers.IO) {
             val response = service.syncMessageGroups(

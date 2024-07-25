@@ -96,14 +96,6 @@ interface Api {
         @Field("token") token: String,
     ): ResponseWrapper<Unit>
 
-    @POST("api/messageGroup/create")
-    @FormUrlEncoded
-    suspend fun createMessageGroup(
-        @Field("token") token: String,
-        @Field("id") id: String,
-        @Field("name") name: String,
-    ): ResponseWrapper<Unit>
-
     @POST("api/messageGroup/remove")
     @FormUrlEncoded
     suspend fun removeMessageGroup(
