@@ -23,7 +23,7 @@
             android:name=".ui.MainActivity"
             android:enableOnBackInvokedCallback="true"
             android:exported="true"
-            android:launchMode="singleTask">
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

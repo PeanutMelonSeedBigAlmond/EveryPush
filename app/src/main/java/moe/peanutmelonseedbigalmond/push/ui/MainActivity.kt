@@ -66,6 +66,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope by CoroutineScope(Dispa
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val intent=intent
+        intentChannel.trySend(intent)
         setContent {
             EveryPushTheme {
                 val navController = rememberNavController()
